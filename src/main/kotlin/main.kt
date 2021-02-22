@@ -3,9 +3,13 @@ import java.io.File
 import java.time.LocalDate
 
 fun main(args: Array<String>) {
-    val p = Peer(args[0], LocalDate.now().toString())
-    val json = Klaxon().toJsonString(p)
-    File("./data/${p.name}.json").writeText(json)
+    when {
+        args.isNotEmpty() -> {
+            val p = Peer(args[0], LocalDate.now().toString())
+            val json = Klaxon().toJsonString(p)
+            File("./data/${p.name}.json").writeText(json)
+        }
+    }
     val jsons = jsonsFrom(path = "./data")
     val peers = peersFrom(jsons)
     peers.forEach { println(it) }
