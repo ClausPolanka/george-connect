@@ -67,4 +67,8 @@ private fun toDays(lastInteraction: String): Long {
     return ChronoUnit.DAYS.between(ld, LocalDate.now())
 }
 
-data class Peer(val firstName: String, val lastName: String, var lastInteractionF2F: String)
+data class Peer(
+    val firstName: String,
+    val lastName: String,
+    var lastInteractionF2F: String
+)
