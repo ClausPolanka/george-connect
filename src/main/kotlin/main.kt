@@ -1,7 +1,7 @@
 import com.beust.klaxon.Klaxon
 import java.io.File
 import java.time.LocalDate
-import java.time.Period
+import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
     if (args.isNotEmpty()) {
@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     sortedPeers.forEach {
         val days = toDays(it.lastInteraction)
         val output = when {
-            days == 0 -> "today"
+            days == 0L -> "today"
             days > 1 -> "$days days ago"
             else -> "$days day ago"
         }
@@ -34,9 +34,9 @@ fun peersFrom(jsons: List<String>): MutableSet<Peer> {
     return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
 }
 
-private fun toDays(lastInteraction: String): Int {
+private fun toDays(lastInteraction: String): Long {
     val ld = LocalDate.parse(lastInteraction)
-    return Period.between(ld, LocalDate.now()).days
+    return ChronoUnit.DAYS.between(ld, LocalDate.now())
 }
 
 data class Peer(val name: String, var lastInteraction: String)
