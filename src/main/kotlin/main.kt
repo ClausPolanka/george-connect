@@ -29,7 +29,6 @@ private fun parse(args: Array<String>) = when (args.size) {
     }
 }
 
-
 private fun findFirstBy(firstName: String): Peer? {
     val peers = peers()
     return peers.find { it.firstName == firstName }
