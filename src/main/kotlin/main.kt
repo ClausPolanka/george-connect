@@ -4,14 +4,20 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
-    updatePeers(args)
-    val peers = sortedPeers()
-    show(peers)
+    try {
+        updatePeer(args)
+        val peers = sortedPeers()
+        show(peers)
+    } catch (e: PeerNotFoundException) {
+        println("Sorry, couldn't find '${e.firstName}'")
+    } catch (e: MultipleEntriesFoundException) {
+        println("Multiple entries found for '${e.firstName}'. Please also provide last name.")
+    }
 }
 
-private fun updatePeers(args: Array<String>) {
+private fun updatePeer(args: Array<String>) {
     val (firstName, lastName) = parse(args)
-    update(firstName, lastName)
+    updatePeer(firstName, lastName)
 }
 
 private fun parse(args: Array<String>) = when (args.size) {
@@ -22,15 +28,19 @@ private fun parse(args: Array<String>) = when (args.size) {
     }
     else -> {
         val firstName = args[0]
-        when (val p = findFirstBy(firstName)) {
-            null -> throw RuntimeException("Sorry, couldn't find '$firstName'")
+        when (val p = findFirstPeerBy(firstName)) {
+            null -> throw PeerNotFoundException(firstName)
             else -> Pair(p.firstName, p.lastName)
         }
     }
 }
 
-private fun findFirstBy(firstName: String): Peer? {
+private fun findFirstPeerBy(firstName: String): Peer? {
     val peers = peers()
+    val result = peers.filter { it.firstName == firstName }
+    if (result.size > 1) {
+        throw MultipleEntriesFoundException(firstName)
+    }
     return peers.find { it.firstName == firstName }
 }
 
@@ -50,7 +60,7 @@ fun peersFrom(jsons: List<String>): MutableSet<Peer> {
     return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
 }
 
-private fun update(firstName: String, lastName: String) {
+private fun updatePeer(firstName: String, lastName: String) {
     val p = Peer(firstName, lastName, LocalDate.now().toString())
     val json = Klaxon().toJsonString(p)
     File("./data/${lastName}_$firstName.json").writeText(json)
@@ -83,3 +93,7 @@ data class Peer(
     val lastName: String,
     var lastInteractionF2F: String
 )
+
+class MultipleEntriesFoundException(val firstName: String) : RuntimeException()
+
+class PeerNotFoundException(val firstName: String) : RuntimeException()
