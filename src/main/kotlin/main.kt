@@ -4,6 +4,12 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
+    updatePeers(args)
+    val peers = sortedPeers()
+    show(peers)
+}
+
+private fun updatePeers(args: Array<String>) {
     if (args.size == 2) {
         val firstName = args[0]
         val lastName = args[1]
@@ -11,22 +17,10 @@ fun main(args: Array<String>) {
     }
     if (args.size == 1) {
         val firstName = args[0]
-        val p = findFirstBy(firstName)
-        if (p == null) {
-            println("Sorry, couldn't find '$firstName'")
-            return
+        when (val p = findFirstBy(firstName)) {
+            null -> println("Sorry, couldn't find '$firstName'")
+            else -> update(p.firstName, p.lastName)
         }
-        update(p.firstName, p.lastName)
-    }
-    val peers = sortedPeers()
-    peers.forEach {
-        val days = toDays(it.lastInteractionF2F)
-        val output = when {
-            days == 0L -> "today"
-            days > 1 -> "$days days ago"
-            else -> "$days day ago"
-        }
-        println("Last F2F interaction with " + it.firstName + " " + it.lastName + " " + output)
     }
 }
 
@@ -65,6 +59,18 @@ private fun sortedPeers(): List<Peer> {
 private fun toDays(lastInteraction: String): Long {
     val ld = LocalDate.parse(lastInteraction)
     return ChronoUnit.DAYS.between(ld, LocalDate.now())
+}
+
+private fun show(peers: List<Peer>) {
+    peers.forEach {
+        val days = toDays(it.lastInteractionF2F)
+        val output = when {
+            days == 0L -> "today"
+            days > 1 -> "$days days ago"
+            else -> "$days day ago"
+        }
+        println("Last F2F interaction with " + it.firstName + " " + it.lastName + " " + output)
+    }
 }
 
 data class Peer(
