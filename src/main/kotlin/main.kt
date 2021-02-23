@@ -5,20 +5,21 @@ import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
     if (args.size == 2) {
-        val p = Peer(args[0], args[1], LocalDate.now().toString())
-        val json = Klaxon().toJsonString(p)
-        File("./data/${p.lastName}_${p.firstName}.json").writeText(json)
+        val firstName = args[0]
+        val lastName = args[1]
+        update(firstName, lastName)
     }
     if (args.size == 1) {
-        val jsons = jsonsFrom(path = "./data")
-        val peers = peersFrom(jsons)
-        val p = peers.find { it.firstName == args[0] }
-        p?.lastInteractionF2F = LocalDate.now().toString()
-        val json = Klaxon().toJsonString(p)
-        File("./data/${p?.lastName}_${p?.firstName}.json").writeText(json)
+        val firstName = args[0]
+        val peers = peers()
+        val p = peers.find { it.firstName == firstName }
+        if (p == null) {
+            println("Sorry, couldn't find '$firstName'")
+            return
+        }
+        update(p.firstName, p.lastName)
     }
-    val jsons = jsonsFrom(path = "./data")
-    val peers = peersFrom(jsons)
+    val peers = peers()
     val sortedPeers = peers.sortedBy { toDays(it.lastInteractionF2F) }
     sortedPeers.forEach {
         val days = toDays(it.lastInteractionF2F)
@@ -29,6 +30,17 @@ fun main(args: Array<String>) {
         }
         println("Last F2F interaction with " + it.firstName + " " + it.lastName + " " + output)
     }
+}
+
+private fun update(firstName: String, lastName: String) {
+    val p = Peer(firstName, lastName, LocalDate.now().toString())
+    val json = Klaxon().toJsonString(p)
+    File("./data/${lastName}_$firstName.json").writeText(json)
+}
+
+private fun peers(): MutableSet<Peer> {
+    val jsons = jsonsFrom(path = "./data")
+    return peersFrom(jsons)
 }
 
 private fun jsonsFrom(path: String): List<String> {
