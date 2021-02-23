@@ -10,25 +10,25 @@ fun main(args: Array<String>) {
 }
 
 private fun updatePeers(args: Array<String>) {
-    if (args.size == 2) {
+    val (firstName, lastName) = parse(args)
+    update(firstName, lastName)
+}
+
+private fun parse(args: Array<String>) = when (args.size) {
+    2 -> {
         val firstName = args[0]
         val lastName = args[1]
-        update(firstName, lastName)
+        Pair(firstName, lastName)
     }
-    if (args.size == 1) {
+    else -> {
         val firstName = args[0]
         when (val p = findFirstBy(firstName)) {
-            null -> println("Sorry, couldn't find '$firstName'")
-            else -> update(p.firstName, p.lastName)
+            null -> throw RuntimeException("Sorry, couldn't find '$firstName'")
+            else -> Pair(p.firstName, p.lastName)
         }
     }
 }
 
-private fun update(firstName: String, lastName: String) {
-    val p = Peer(firstName, lastName, LocalDate.now().toString())
-    val json = Klaxon().toJsonString(p)
-    File("./data/${lastName}_$firstName.json").writeText(json)
-}
 
 private fun findFirstBy(firstName: String): Peer? {
     val peers = peers()
@@ -49,6 +49,12 @@ private fun jsonsFrom(path: String): List<String> {
 
 fun peersFrom(jsons: List<String>): MutableSet<Peer> {
     return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
+}
+
+private fun update(firstName: String, lastName: String) {
+    val p = Peer(firstName, lastName, LocalDate.now().toString())
+    val json = Klaxon().toJsonString(p)
+    File("./data/${lastName}_$firstName.json").writeText(json)
 }
 
 private fun sortedPeers(): List<Peer> {
