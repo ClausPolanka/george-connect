@@ -13,21 +13,21 @@ fun main(args: Array<String>) {
         val jsons = jsonsFrom(path = "./data")
         val peers = peersFrom(jsons)
         val p = peers.find { it.firstName == args[0] }
-        p?.lastInteraction = LocalDate.now().toString()
+        p?.lastInteractionF2F = LocalDate.now().toString()
         val json = Klaxon().toJsonString(p)
         File("./data/${p?.lastName}_${p?.firstName}.json").writeText(json)
     }
     val jsons = jsonsFrom(path = "./data")
     val peers = peersFrom(jsons)
-    val sortedPeers = peers.sortedBy { toDays(it.lastInteraction) }
+    val sortedPeers = peers.sortedBy { toDays(it.lastInteractionF2F) }
     sortedPeers.forEach {
-        val days = toDays(it.lastInteraction)
+        val days = toDays(it.lastInteractionF2F)
         val output = when {
             days == 0L -> "today"
             days > 1 -> "$days days ago"
             else -> "$days day ago"
         }
-        println("Last interaction with " + it.firstName + " " + it.lastName + " " + output)
+        println("Last F2F interaction with " + it.firstName + " " + it.lastName + " " + output)
     }
 }
 
@@ -47,4 +47,4 @@ private fun toDays(lastInteraction: String): Long {
     return ChronoUnit.DAYS.between(ld, LocalDate.now())
 }
 
-data class Peer(val firstName: String, val lastName: String, var lastInteraction: String)
+data class Peer(val firstName: String, val lastName: String, var lastInteractionF2F: String)
