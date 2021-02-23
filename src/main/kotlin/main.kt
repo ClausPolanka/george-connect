@@ -11,7 +11,8 @@ fun main(args: Array<String>) {
     }
     val jsons = jsonsFrom(path = "./data")
     val peers = peersFrom(jsons)
-    peers.forEach {
+    val sortedPeers = peers.sortedBy { toDays(it.lastInteraction) }
+    sortedPeers.forEach {
         val days = toDays(it.lastInteraction)
         val output = when {
             days == 0 -> "today"
