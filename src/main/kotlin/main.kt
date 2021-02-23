@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
             days > 1 -> "$days days ago"
             else -> "$days day ago"
         }
-        println("Last interaction with " + it.firstName + " " + output)
+        println("Last interaction with " + it.firstName + " " + it.lastName + " " + output)
     }
 }
 
