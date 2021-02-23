@@ -11,8 +11,7 @@ fun main(args: Array<String>) {
     }
     if (args.size == 1) {
         val firstName = args[0]
-        val peers = peers()
-        val p = peers.find { it.firstName == firstName }
+        val p = findFirstBy(firstName)
         if (p == null) {
             println("Sorry, couldn't find '$firstName'")
             return
@@ -41,6 +40,11 @@ private fun update(firstName: String, lastName: String) {
 private fun peers(): MutableSet<Peer> {
     val jsons = jsonsFrom(path = "./data")
     return peersFrom(jsons)
+}
+
+private fun findFirstBy(firstName: String): Peer? {
+    val peers = peers()
+    return peers.find { it.firstName == firstName }
 }
 
 private fun jsonsFrom(path: String): List<String> {
