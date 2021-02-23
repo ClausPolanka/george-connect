@@ -18,9 +18,8 @@ fun main(args: Array<String>) {
         }
         update(p.firstName, p.lastName)
     }
-    val peers = peers()
-    val sortedPeers = peers.sortedBy { toDays(it.lastInteractionF2F) }
-    sortedPeers.forEach {
+    val peers = sortedPeers()
+    peers.forEach {
         val days = toDays(it.lastInteractionF2F)
         val output = when {
             days == 0L -> "today"
@@ -37,14 +36,14 @@ private fun update(firstName: String, lastName: String) {
     File("./data/${lastName}_$firstName.json").writeText(json)
 }
 
-private fun peers(): MutableSet<Peer> {
-    val jsons = jsonsFrom(path = "./data")
-    return peersFrom(jsons)
-}
-
 private fun findFirstBy(firstName: String): Peer? {
     val peers = peers()
     return peers.find { it.firstName == firstName }
+}
+
+private fun peers(): MutableSet<Peer> {
+    val jsons = jsonsFrom(path = "./data")
+    return peersFrom(jsons)
 }
 
 private fun jsonsFrom(path: String): List<String> {
@@ -56,6 +55,11 @@ private fun jsonsFrom(path: String): List<String> {
 
 fun peersFrom(jsons: List<String>): MutableSet<Peer> {
     return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
+}
+
+private fun sortedPeers(): List<Peer> {
+    val peers = peers()
+    return peers.sortedBy { toDays(it.lastInteractionF2F) }
 }
 
 private fun toDays(lastInteraction: String): Long {
