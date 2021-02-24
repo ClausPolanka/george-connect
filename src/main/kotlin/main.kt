@@ -4,10 +4,16 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
-    try {
+    errorHandled {
         updatePeer(args)
         val peers = sortedPeers()
         show(peers)
+    }
+}
+
+private fun errorHandled(fn: () -> Unit) {
+    try {
+        fn()
     } catch (e: PeerNotFoundException) {
         println("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {
