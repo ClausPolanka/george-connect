@@ -5,9 +5,17 @@ import java.time.temporal.ChronoUnit
 
 fun main(args: Array<String>) {
     errorHandled {
-        updatePeer(args)
-        val peers = sortedPeers()
-        show(peers)
+        inCase(args.isEmpty(),
+            onEmpty = {
+                val peers = sortedPeers()
+                show(peers)
+            },
+            onNonEmpty = {
+                updatePeer(args)
+                val peers = sortedPeers()
+                show(peers)
+            }
+        )
     }
 }
 
@@ -18,6 +26,13 @@ private fun errorHandled(fn: () -> Unit) {
         println("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {
         println("Multiple entries found for '${e.firstName}'. Please also provide last name.")
+    }
+}
+
+private fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () -> Unit) {
+    when (argsAreEmpty) {
+        true -> onEmpty()
+        else -> onNonEmpty()
     }
 }
 
@@ -34,14 +49,14 @@ private fun parse(args: Array<String>) = when (args.size) {
     }
     else -> {
         val firstName = args[0]
-        when (val p = findFirstPeerBy(firstName)) {
+        when (val p = findPeerBy(firstName)) {
             null -> throw PeerNotFoundException(firstName)
             else -> Pair(p.firstName, p.lastName)
         }
     }
 }
 
-private fun findFirstPeerBy(firstName: String): Peer? {
+private fun findPeerBy(firstName: String): Peer? {
     val peers = peers()
     val result = peers.filter { it.firstName == firstName }
     if (result.size > 1) {
