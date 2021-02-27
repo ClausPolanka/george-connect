@@ -88,7 +88,7 @@ fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
 
 fun updateJsonFor(p: Peer, path: String) {
     val json = Klaxon().toJsonString(p)
-    File("$path/${p.lastName}_${p.lastName}.json").writeText(json)
+    File("$path/${p.lastName}_${p.firstName}.json").writeText(json)
 }
 
 private fun sortedPeers(): List<Peer> {
