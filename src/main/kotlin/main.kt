@@ -38,7 +38,8 @@ fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () -> Unit) {
 
 private fun updatePeer(args: Array<String>) {
     val (firstName, lastName) = parse(args, ::findPeerBy)
-    updatePeer(firstName, lastName)
+    val p = Peer(firstName, lastName, LocalDate.now().toString())
+    updateJsonFor(p, path = "./data")
 }
 
 fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (args.size) {
@@ -85,10 +86,9 @@ fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
     }
 }
 
-fun updatePeer(firstName: String, lastName: String) {
-    val p = Peer(firstName, lastName, LocalDate.now().toString())
+fun updateJsonFor(p: Peer, path: String) {
     val json = Klaxon().toJsonString(p)
-    File("./data/${lastName}_$firstName.json").writeText(json)
+    File("$path/${p.lastName}_${p.lastName}.json").writeText(json)
 }
 
 private fun sortedPeers(): List<Peer> {
