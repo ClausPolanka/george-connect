@@ -11,7 +11,7 @@ private fun peers(): MutableSet<Peer> {
     return peersFrom(jsons, Klaxon()::parse)
 }
 
-fun show(peers: List<Peer>, display: (s: String) -> Unit) {
+fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
     peers.forEach {
         val days = toDays(it.lastInteractionF2F)
         val output = outputFor(days)

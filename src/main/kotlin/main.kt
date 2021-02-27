@@ -3,12 +3,12 @@ fun main(args: Array<String>) {
         inCase(args.isEmpty(),
             onEmpty = {
                 val peers = sortedPeers()
-                show(peers, display = ::println)
+                showLastInteractionsWith(peers, display = ::println)
             },
             onNonEmpty = {
                 updatePeer(args)
                 val peers = sortedPeers()
-                show(peers, display = ::println)
+                showLastInteractionsWith(peers, display = ::println)
             }
         )
     }
