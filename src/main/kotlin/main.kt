@@ -58,10 +58,7 @@ private fun parse(args: Array<String>) = when (args.size) {
 
 private fun findPeerBy(firstName: String): Peer? {
     val peers = peers()
-    val result = peers.filter { it.firstName == firstName }
-    if (result.size > 1) {
-        throw MultipleEntriesFoundException(firstName)
-    }
+    peers.throwIfDuplicatesExistFor(firstName)
     return peers.find { it.firstName == firstName }
 }
 
@@ -79,6 +76,13 @@ private fun jsonsFrom(path: String): List<String> {
 
 fun peersFrom(jsons: List<String>): MutableSet<Peer> {
     return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
+}
+
+private fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
+    val result = this.filter { it.firstName == firstName }
+    if (result.size > 1) {
+        throw MultipleEntriesFoundException(firstName)
+    }
 }
 
 private fun updatePeer(firstName: String, lastName: String) {
