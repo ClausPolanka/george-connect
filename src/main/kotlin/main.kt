@@ -37,11 +37,11 @@ private fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () ->
 }
 
 private fun updatePeer(args: Array<String>) {
-    val (firstName, lastName) = parse(args)
+    val (firstName, lastName) = parse(args, ::findPeerBy)
     updatePeer(firstName, lastName)
 }
 
-private fun parse(args: Array<String>) = when (args.size) {
+private fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (args.size) {
     2 -> {
         val firstName = args[0]
         val lastName = args[1]
@@ -49,7 +49,7 @@ private fun parse(args: Array<String>) = when (args.size) {
     }
     else -> {
         val firstName = args[0]
-        when (val p = findPeerBy(firstName)) {
+        when (val p = findBy(firstName)) {
             null -> throw PeerNotFoundException(firstName)
             else -> Pair(p.firstName, p.lastName)
         }
@@ -64,7 +64,7 @@ private fun findPeerBy(firstName: String): Peer? {
 
 private fun peers(): MutableSet<Peer> {
     val jsons = jsonsFrom(path = "./data")
-    return peersFrom(jsons)
+    return peersFrom(jsons, Klaxon()::parse)
 }
 
 private fun jsonsFrom(path: String): List<String> {
@@ -74,8 +74,8 @@ private fun jsonsFrom(path: String): List<String> {
         .toList()
 }
 
-fun peersFrom(jsons: List<String>): MutableSet<Peer> {
-    return jsons.mapNotNull { Klaxon().parse<Peer>(it) }.toMutableSet()
+private fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Peer> {
+    return jsons.mapNotNull { jsonToPeer(it) }.toMutableSet()
 }
 
 private fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
