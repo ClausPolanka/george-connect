@@ -8,18 +8,18 @@ fun main(args: Array<String>) {
         inCase(args.isEmpty(),
             onEmpty = {
                 val peers = sortedPeers()
-                show(peers)
+                show(peers, ::println)
             },
             onNonEmpty = {
                 updatePeer(args)
                 val peers = sortedPeers()
-                show(peers)
+                show(peers, ::println)
             }
         )
     }
 }
 
-private fun errorHandled(fn: () -> Unit) {
+fun errorHandled(fn: () -> Unit) {
     try {
         fn()
     } catch (e: PeerNotFoundException) {
@@ -29,7 +29,7 @@ private fun errorHandled(fn: () -> Unit) {
     }
 }
 
-private fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () -> Unit) {
+fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () -> Unit) {
     when (argsAreEmpty) {
         true -> onEmpty()
         else -> onNonEmpty()
@@ -41,7 +41,7 @@ private fun updatePeer(args: Array<String>) {
     updatePeer(firstName, lastName)
 }
 
-private fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (args.size) {
+fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (args.size) {
     2 -> {
         val firstName = args[0]
         val lastName = args[1]
@@ -67,25 +67,25 @@ private fun peers(): MutableSet<Peer> {
     return peersFrom(jsons, Klaxon()::parse)
 }
 
-private fun jsonsFrom(path: String): List<String> {
+fun jsonsFrom(path: String): List<String> {
     return File(path).walk()
         .filter { it.extension == "json" }
         .map { it.readText(Charsets.UTF_8) }
         .toList()
 }
 
-private fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Peer> {
+fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Peer> {
     return jsons.mapNotNull { jsonToPeer(it) }.toMutableSet()
 }
 
-private fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
+fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
     val result = this.filter { it.firstName == firstName }
     if (result.size > 1) {
         throw MultipleEntriesFoundException(firstName)
     }
 }
 
-private fun updatePeer(firstName: String, lastName: String) {
+fun updatePeer(firstName: String, lastName: String) {
     val p = Peer(firstName, lastName, LocalDate.now().toString())
     val json = Klaxon().toJsonString(p)
     File("./data/${lastName}_$firstName.json").writeText(json)
@@ -101,15 +101,19 @@ private fun toDays(lastInteraction: String): Long {
     return ChronoUnit.DAYS.between(ld, LocalDate.now())
 }
 
-private fun show(peers: List<Peer>) {
+private fun show(peers: List<Peer>, display: (s: String) -> Unit) {
     peers.forEach {
         val days = toDays(it.lastInteractionF2F)
-        val output = when {
-            days == 0L -> "today"
-            days > 1 -> "$days days ago"
-            else -> "$days day ago"
-        }
-        println("Last F2F interaction with " + it.firstName + " " + it.lastName + " " + output)
+        val output = outputFor(days)
+        display("Last F2F interaction with ${it.firstName} ${it.lastName} $output")
+    }
+}
+
+private fun outputFor(days: Long): String {
+    return when {
+        days == 0L -> "today"
+        days > 1 -> "$days days ago"
+        else -> "$days day ago"
     }
 }
 
