@@ -31,7 +31,7 @@ class OperationsTests {
                 assertEquals(
                     expected = "Multiple entries found for 'duplicate'. Please also provide last name.",
                     actual,
-                    "message®"
+                    "message"
                 )
             },
             fn = { throw MultipleEntriesFoundException(firstName = "duplicate") }
