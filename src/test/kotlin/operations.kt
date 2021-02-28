@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test
-import kotlin.math.exp
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class OperationsTests {
@@ -50,5 +50,28 @@ class OperationsTests {
         var actual = ""
         inCase(argsAreEmpty = false, onEmpty = { /* Ignore */ }, onNonEmpty = { actual = "ok" })
         assertEquals(expected = "ok", actual, "args are nonempty")
+    }
+
+    @Test
+    fun `parse args containing two values`() {
+        val actual = parse(args = arrayOf("firstname", "lastname"), findBy = { null })
+        assertEquals(expected = Pair("firstname", "lastname"), actual, "result")
+    }
+
+    @Test
+    fun `parse args containing one value`() {
+        val actual = parse(
+            args = arrayOf("firstname"),
+            findBy = { Peer("firstname", "lastname", "ignore") }
+        )
+        assertEquals(expected = Pair("firstname", "lastname"), actual, "result")
+    }
+
+    @Test
+    fun `parse args containing one value which is unknown`() {
+        val exception = assertThrows<PeerNotFoundException> {
+            parse(args = arrayOf("unknown"), findBy = { null })
+        }
+        assertEquals(expected = "unknown", exception.firstName, "peer first name")
     }
 }
