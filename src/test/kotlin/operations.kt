@@ -37,4 +37,18 @@ class OperationsTests {
             fn = { throw MultipleEntriesFoundException(firstName = "duplicate") }
         )
     }
+
+    @Test
+    fun `in case args are empty run corresponding function`() {
+        var actual = ""
+        inCase(argsAreEmpty = true, onEmpty = { actual = "ok" }, onNonEmpty = { /* Ignore */ })
+        assertEquals(expected = "ok", actual, "args are empty")
+    }
+
+    @Test
+    fun `in case args are nonempty run corresponding function`() {
+        var actual = ""
+        inCase(argsAreEmpty = false, onEmpty = { /* Ignore */ }, onNonEmpty = { actual = "ok" })
+        assertEquals(expected = "ok", actual, "args are nonempty")
+    }
 }
