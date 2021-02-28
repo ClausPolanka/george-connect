@@ -1,5 +1,5 @@
 fun main(args: Array<String>) {
-    errorHandled {
+    errorHandled(display = ::println) {
         inCase(args.isEmpty(),
             onEmpty = {
                 val peers = sortedPeers()

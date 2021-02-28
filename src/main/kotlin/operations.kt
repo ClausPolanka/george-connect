@@ -3,13 +3,13 @@ import java.io.File
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-fun errorHandled(fn: () -> Unit) {
+fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
     try {
         fn()
     } catch (e: PeerNotFoundException) {
-        println("Sorry, couldn't find '${e.firstName}'")
+        display("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {
-        println("Multiple entries found for '${e.firstName}'. Please also provide last name.")
+        display("Multiple entries found for '${e.firstName}'. Please also provide last name.")
     }
 }
 
