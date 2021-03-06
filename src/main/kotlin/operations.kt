@@ -10,6 +10,12 @@ fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
         display("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {
         display("Multiple entries found for '${e.firstName}'. Please also provide last name.")
+    } catch (e: TooManyArgsException) {
+        display("""usage
+            |george-connect                             list all peer face-to-face interactions
+            |george-connect <first_name>                log new peer face-to-face interaction for existing peer
+            |george-connect <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
+        """.trimMargin())
     }
 }
 
@@ -26,16 +32,19 @@ fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (arg
         val lastName = args[1]
         Pair(firstName, lastName)
     }
-    else -> {
+    1 -> {
         val firstName = args[0]
         when (val p = findBy(firstName)) {
             null -> throw PeerNotFoundException(firstName)
             else -> Pair(p.firstName, p.lastName)
         }
     }
+    else -> throw TooManyArgsException()
 }
 
 class PeerNotFoundException(val firstName: String) : RuntimeException()
+
+class TooManyArgsException : RuntimeException()
 
 fun jsonsFrom(path: String): List<String> {
     return File(path).walk()

@@ -74,4 +74,11 @@ class OperationsTests {
         }
         assertEquals(expected = "unknown", exception.firstName, "peer first name")
     }
+
+    @Test
+    fun `parse args containing too many values`() {
+        assertThrows<TooManyArgsException> {
+            parse(args = arrayOf("too", "many", "args"), findBy = { null })
+        }
+    }
 }
