@@ -92,4 +92,21 @@ class OperationsTests {
             parse(args = arrayOf("too", "many", "args"), findBy = { null })
         }
     }
+
+    @Test
+    fun `peers must not contain nulls`() {
+        val peers = peersFrom(jsons = listOf("json1", "json2"), jsonToPeer = { json -> null })
+        assertEquals(emptySet(), peers, "peers")
+    }
+
+    @Test
+    fun `json value are converted to peers`() {
+        val peer = Peer(
+            "berni",
+            "fleck",
+            lastInteractionF2F = "2021-03-05"
+        )
+        val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { json -> peer })
+        assertEquals(setOf(peer), actual, "peers")
+    }
 }
