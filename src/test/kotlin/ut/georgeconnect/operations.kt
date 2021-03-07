@@ -100,7 +100,7 @@ class OperationsTests {
     }
 
     @Test
-    fun `json value are converted to peers`() {
+    fun `json value is converted to peer`() {
         val peer = Peer(
             "berni",
             "fleck",
