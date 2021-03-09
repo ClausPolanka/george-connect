@@ -102,8 +102,8 @@ class OperationsTests {
     @Test
     fun `json value is converted to peer`() {
         val peer = Peer(
-            "berni",
-            "fleck",
+            "firstname",
+            "lastname",
             lastInteractionF2F = "2021-03-05"
         )
         val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { json -> peer })
