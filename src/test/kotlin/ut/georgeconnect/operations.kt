@@ -1,6 +1,7 @@
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDate
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -51,6 +52,20 @@ class OperationsTests {
     }
 
     @Test
+    fun `peer last interaction date has wrong format`() {
+        val lastInteraction = "xxx"
+        errorHandled(
+            display = { actual ->
+                assertTrue(
+                    actual.contains(lastInteraction),
+                    "message doesn't contain last interaction date: '$lastInteraction'"
+                )
+            },
+            fn = { throw PeerLastInteractionDateHasWrongFormat(lastInteraction) }
+        )
+    }
+
+    @Test
     fun `in case args are empty run corresponding function`() {
         var actual = ""
         inCase(argsAreEmpty = true, onEmpty = { actual = "ok" }, onNonEmpty = { /* Ignore */ })
@@ -96,7 +111,7 @@ class OperationsTests {
 
     @Test
     fun `peers must not contain nulls`() {
-        val peers = peersFrom(jsons = listOf("json1", "json2"), jsonToPeer = { json -> null })
+        val peers = peersFrom(jsons = listOf("json1", "json2"), jsonToPeer = { _ -> null })
         assertEquals(emptySet(), peers, "peers")
     }
 
@@ -107,7 +122,7 @@ class OperationsTests {
             "lastname",
             lastInteractionF2F = "2021-03-05"
         )
-        val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { json -> peer })
+        val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { _ -> peer })
         assertEquals(setOf(peer), actual, "peers")
     }
 
@@ -142,4 +157,19 @@ class OperationsTests {
             peers.throwIfDuplicatesExistFor("unknown")
         }
     }
+
+    @Test
+    fun `last interaction in days for given last interaction date`() {
+        val days = toDays(lastInteraction = "2021-03-05") { LocalDate.of(2021, 3, 10) }
+        assertEquals(expected = 5, days, "last interaction in days")
+    }
+
+    @Test
+    fun `last interaction date has wrong format`() {
+        assertThrows<PeerLastInteractionDateHasWrongFormat> {
+            toDays(lastInteraction = "xxx", ::IGNORE)
+        }
+    }
+
+    private fun IGNORE(): Nothing = throw NotImplementedError()
 }

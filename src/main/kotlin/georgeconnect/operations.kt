@@ -1,6 +1,7 @@
 import com.beust.klaxon.Klaxon
 import java.io.File
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
@@ -11,11 +12,15 @@ fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
     } catch (e: MultipleEntriesFoundException) {
         display("Multiple entries found for '${e.firstName}'. Please also provide last name.")
     } catch (e: TooManyArgsException) {
-        display("""usage
+        display(
+            """usage
             |george-connect                             list all peer face-to-face interactions
             |george-connect <first_name>                log new peer face-to-face interaction for existing peer
             |george-connect <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
-        """.trimMargin())
+        """.trimMargin()
+        )
+    } catch (e: PeerLastInteractionDateHasWrongFormat) {
+        display("Unfortunately the last interaction date has an unknown format: '${e.lastInteraction}'")
     }
 }
 
@@ -71,10 +76,16 @@ fun updateJsonFor(p: Peer, path: String) {
     File("$path/${p.lastName}_${p.firstName}.json").writeText(json)
 }
 
-fun toDays(lastInteraction: String): Long {
-    val ld = LocalDate.parse(lastInteraction)
-    return ChronoUnit.DAYS.between(ld, LocalDate.now())
+fun toDays(lastInteraction: String, now: () -> LocalDate): Long {
+    val ld = try {
+        LocalDate.parse(lastInteraction)
+    } catch (e: DateTimeParseException) {
+        throw PeerLastInteractionDateHasWrongFormat(lastInteraction)
+    }
+    return ChronoUnit.DAYS.between(ld, now())
 }
+
+class PeerLastInteractionDateHasWrongFormat(val lastInteraction: String) : RuntimeException()
 
 fun outputFor(days: Long): String {
     return when {
