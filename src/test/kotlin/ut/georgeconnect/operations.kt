@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -108,5 +109,37 @@ class OperationsTests {
         )
         val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { json -> peer })
         assertEquals(setOf(peer), actual, "peers")
+    }
+
+    @Test
+    fun `throw if duplicate peers exist for given first name`() {
+        val p1 = Peer("firstname", "lastname1", lastInteractionF2F = "2021-03-05")
+        val p2 = Peer("firstname", "lastname2", lastInteractionF2F = "2021-03-05")
+        val peers = mutableSetOf(p1, p2)
+
+        assertThrows<MultipleEntriesFoundException> {
+            peers.throwIfDuplicatesExistFor("firstname")
+        }
+    }
+
+    @Test
+    fun `does not throw if no duplicate peers exist for given first name`() {
+        val p1 = Peer("firstname1", "lastname1", lastInteractionF2F = "2021-03-05")
+        val p2 = Peer("firstname2", "lastname2", lastInteractionF2F = "2021-03-05")
+        val peers = mutableSetOf(p1, p2)
+
+        assertDoesNotThrow {
+            peers.throwIfDuplicatesExistFor("firstname1")
+        }
+    }
+
+    @Test
+    fun `does not throw if no peer exists for given first name`() {
+        val p1 = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-05")
+        val peers = mutableSetOf(p1)
+
+        assertDoesNotThrow {
+            peers.throwIfDuplicatesExistFor("unknown")
+        }
     }
 }
