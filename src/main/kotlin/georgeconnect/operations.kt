@@ -77,12 +77,12 @@ fun updateJsonFor(p: Peer, path: String) {
 }
 
 fun toDays(lastInteraction: String, now: () -> LocalDate): Long {
-    val ld = try {
+    val localDate = try {
         LocalDate.parse(lastInteraction)
     } catch (e: DateTimeParseException) {
         throw PeerLastInteractionDateHasWrongFormat(lastInteraction)
     }
-    return ChronoUnit.DAYS.between(ld, now())
+    return ChronoUnit.DAYS.between(localDate, now())
 }
 
 class PeerLastInteractionDateHasWrongFormat(val lastInteraction: String) : RuntimeException()
