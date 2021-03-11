@@ -111,7 +111,7 @@ class OperationsTests {
 
     @Test
     fun `peers must not contain nulls`() {
-        val peers = peersFrom(jsons = listOf("json1", "json2"), jsonToPeer = { _ -> null })
+        val peers = peersFrom(jsons = listOf("json1", "json2"), jsonToPeer = { null })
         assertEquals(emptySet(), peers, "peers")
     }
 
@@ -122,7 +122,7 @@ class OperationsTests {
             "lastname",
             lastInteractionF2F = "2021-03-05"
         )
-        val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { _ -> peer })
+        val actual = peersFrom(jsons = listOf("json"), jsonToPeer = { peer })
         assertEquals(setOf(peer), actual, "peers")
     }
 
