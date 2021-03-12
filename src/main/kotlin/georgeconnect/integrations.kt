@@ -3,7 +3,7 @@ import java.time.LocalDate
 
 fun sortedPeers(): List<Peer> {
     val peers = peers()
-    return peers.sortedBy { toDays(it.lastInteractionF2F, LocalDate::now)  }
+    return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now)  }
 }
 
 private fun peers(): MutableSet<Peer> {
@@ -13,7 +13,7 @@ private fun peers(): MutableSet<Peer> {
 
 fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
     peers.forEach {
-        val days = toDays(it.lastInteractionF2F, LocalDate::now)
+        val days = it.lastInteractionF2FInDays(LocalDate::now)
         val output = outputFor(days)
         display("Last F2F interaction with ${it.firstName} ${it.lastName} $output")
     }

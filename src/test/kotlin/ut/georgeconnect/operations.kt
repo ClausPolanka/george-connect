@@ -53,15 +53,15 @@ class OperationsTests {
 
     @Test
     fun `peer last interaction date has wrong format`() {
-        val lastInteraction = "xxx"
+        val p = Peer("firstname", "lastname", lastInteractionF2F = "xxx")
         errorHandled(
             display = { actual ->
                 assertTrue(
-                    actual.contains(lastInteraction),
-                    "message doesn't contain last interaction date: '$lastInteraction'"
+                    actual.contains("xxx"),
+                    "message doesn't contain last interaction date: '${p.lastInteractionF2F}'"
                 )
             },
-            fn = { throw PeerLastInteractionDateHasWrongFormat(lastInteraction) }
+            fn = { throw PeerLastInteractionDateHasWrongFormat(p) }
         )
     }
 
@@ -160,14 +160,16 @@ class OperationsTests {
 
     @Test
     fun `last interaction in days for given last interaction date`() {
-        val days = toDays(lastInteraction = "2021-03-05") { LocalDate.of(2021, 3, 10) }
+        val p = Peer("firstname", "lastname", "2021-03-05")
+        val days = p.lastInteractionF2FInDays { LocalDate.of(2021, 3, 10) }
         assertEquals(expected = 5, days, "last interaction in days")
     }
 
     @Test
     fun `last interaction date has wrong format`() {
+        val p = Peer("firstname", "lastname", lastInteractionF2F = "xxx")
         assertThrows<PeerLastInteractionDateHasWrongFormat> {
-            toDays(lastInteraction = "xxx", ::IGNORE)
+            p.lastInteractionF2FInDays(now = ::IGNORE)
         }
     }
 

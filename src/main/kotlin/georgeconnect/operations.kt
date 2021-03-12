@@ -20,7 +20,8 @@ fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
         """.trimMargin()
         )
     } catch (e: PeerLastInteractionDateHasWrongFormat) {
-        display("Unfortunately the last interaction date has an unknown format: '${e.lastInteraction}'")
+        display("Unfortunately the last interaction date for '${e.peer.firstName} ${e.peer.lastName}'" +
+                " has an unknown format: '${e.peer.lastInteractionF2F}'")
     }
 }
 
@@ -76,16 +77,16 @@ fun updateJsonFor(p: Peer, path: String) {
     File("$path/${p.lastName}_${p.firstName}.json").writeText(json)
 }
 
-fun toDays(lastInteraction: String, now: () -> LocalDate): Long {
+fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long {
     val localDate = try {
-        LocalDate.parse(lastInteraction)
+        LocalDate.parse(this.lastInteractionF2F)
     } catch (e: DateTimeParseException) {
-        throw PeerLastInteractionDateHasWrongFormat(lastInteraction)
+        throw PeerLastInteractionDateHasWrongFormat(this)
     }
     return ChronoUnit.DAYS.between(localDate, now())
 }
 
-class PeerLastInteractionDateHasWrongFormat(val lastInteraction: String) : RuntimeException()
+class PeerLastInteractionDateHasWrongFormat(val peer: Peer) : RuntimeException()
 
 fun outputFor(days: Long): String {
     return when {
