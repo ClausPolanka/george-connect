@@ -4,9 +4,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
-fun errorHandled(display: (msg: String) -> Unit, fn: () -> Unit) {
+fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     try {
-        fn()
+        georgeConnect()
     } catch (e: PeerNotFoundException) {
         display("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {

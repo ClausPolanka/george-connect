@@ -8,11 +8,11 @@ import kotlin.test.assertTrue
 class OperationsTests {
 
     @Test
-    fun `run program without errors`() {
+    fun `run george connect without errors`() {
         var actual = ""
         errorHandled(
             display = { /* Ignore */ },
-            fn = { actual = "ok" }
+            georgeConnect = { actual = "ok" }
         )
         assertEquals(expected = "ok", actual, "message")
     }
@@ -23,7 +23,7 @@ class OperationsTests {
             display = { actual ->
                 assertEquals(expected = "Sorry, couldn't find 'unknown'", actual, "message")
             },
-            fn = { throw PeerNotFoundException(firstName = "unknown") }
+            georgeConnect = { throw PeerNotFoundException(firstName = "unknown") }
         )
     }
 
@@ -37,7 +37,7 @@ class OperationsTests {
                     "message"
                 )
             },
-            fn = { throw MultipleEntriesFoundException(firstName = "duplicate") }
+            georgeConnect = { throw MultipleEntriesFoundException(firstName = "duplicate") }
         )
     }
 
@@ -47,7 +47,7 @@ class OperationsTests {
             display = { actual ->
                 assertTrue(actual.contains("usage"), "usage is '$actual'")
             },
-            fn = { throw TooManyArgsException() }
+            georgeConnect = { throw TooManyArgsException() }
         )
     }
 
@@ -61,7 +61,7 @@ class OperationsTests {
                     "message doesn't contain last interaction date: '${p.lastInteractionF2F}'"
                 )
             },
-            fn = { throw PeerLastInteractionDateHasWrongFormat(p) }
+            georgeConnect = { throw PeerLastInteractionDateHasWrongFormat(p) }
         )
     }
 
