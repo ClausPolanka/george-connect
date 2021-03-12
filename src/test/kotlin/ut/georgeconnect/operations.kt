@@ -174,5 +174,23 @@ class OperationsTests {
         }
     }
 
+    @Test
+    fun `output for today`() {
+        val output = outputFor(days = 0)
+        assertEquals(expected = "today", output, "output for days")
+    }
+
+    @Test
+    fun `output for yesterday`() {
+        val output = outputFor(days = 1)
+        assertEquals(expected = "1 day ago", output, "output for days")
+    }
+
+    @Test
+    fun `output for more than one day ago`() {
+        val output = outputFor(days = 2)
+        assertEquals(expected = "2 days ago", output, "output for days")
+    }
+
     private fun IGNORE(): Nothing = throw NotImplementedError()
 }
