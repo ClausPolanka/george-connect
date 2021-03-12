@@ -161,7 +161,7 @@ class OperationsTests {
     @Test
     fun `last interaction in days for given last interaction date`() {
         val p = Peer("firstname", "lastname", "2021-03-05")
-        val days = p.lastInteractionF2FInDays { LocalDate.of(2021, 3, 10) }
+        val days = p.lastInteractionF2FInDays(now = { LocalDate.of(2021, 3, 10) })
         assertEquals(expected = 5, days, "last interaction in days")
     }
 
