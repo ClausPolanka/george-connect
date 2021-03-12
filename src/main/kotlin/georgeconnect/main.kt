@@ -1,3 +1,5 @@
+package georgeconnect
+
 fun main(args: Array<String>) {
     errorHandled(display = ::println) {
         inCase(args.isEmpty(),

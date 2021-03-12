@@ -1,3 +1,5 @@
+package georgeconnect
+
 data class Peer(
     val firstName: String,
     val lastName: String,

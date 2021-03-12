@@ -1,3 +1,5 @@
+package georgeconnect
+
 import com.beust.klaxon.Klaxon
 import java.time.LocalDate
 
