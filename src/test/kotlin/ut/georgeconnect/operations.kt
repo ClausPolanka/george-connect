@@ -1,3 +1,5 @@
+package ut.georgeconnect
+
 import georgeconnect.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
