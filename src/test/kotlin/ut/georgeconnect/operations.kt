@@ -170,7 +170,7 @@ class OperationsTests {
     fun `last interaction date has wrong format`() {
         val p = Peer("firstname", "lastname", lastInteractionF2F = "xxx")
         assertThrows<PeerLastInteractionDateHasWrongFormat> {
-            p.lastInteractionF2FInDays(now = ::IGNORE)
+            p.lastInteractionF2FInDays(now = ::ignore)
         }
     }
 
@@ -192,5 +192,5 @@ class OperationsTests {
         assertEquals(expected = "2 days ago", output, "output for days")
     }
 
-    private fun IGNORE(): Nothing = throw NotImplementedError()
+    private fun ignore(): Nothing = throw NotImplementedError()
 }
