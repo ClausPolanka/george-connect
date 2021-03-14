@@ -9,7 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
 
-class OperationsTests {
+class OperationsIntegrationTests {
 
     @Test
     fun `read jsonsFrom given path`(@TempDir tempDir: Path) {
