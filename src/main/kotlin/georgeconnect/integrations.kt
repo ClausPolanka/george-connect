@@ -3,7 +3,12 @@ package georgeconnect
 import com.beust.klaxon.Klaxon
 import java.time.LocalDate
 
-fun sortedPeersFrom(path: String): List<Peer> {
+fun showInteractions(path: String) {
+    val peers = sortedPeersFrom(path)
+    showLastInteractionsWith(peers, display = ::println)
+}
+
+private fun sortedPeersFrom(path: String): List<Peer> {
     val peers = peersFrom(path)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now)  }
 }
@@ -13,7 +18,7 @@ private fun peersFrom(path: String): MutableSet<Peer> {
     return peersFrom(jsons, Klaxon()::parse)
 }
 
-fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
+private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
     peers.forEach {
         val days = it.lastInteractionF2FInDays(LocalDate::now)
         val output = outputFor(days)
