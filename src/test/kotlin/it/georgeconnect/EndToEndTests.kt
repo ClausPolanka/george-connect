@@ -50,7 +50,7 @@ class EndToEndTests {
                          |Last F2F interaction with firstname2 lastname2 2 days ago
                          |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 
@@ -75,7 +75,7 @@ class EndToEndTests {
                          |Last F2F interaction with firstname2 lastname2 2 days ago
                          |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 
@@ -100,7 +100,7 @@ class EndToEndTests {
                          |Last F2F interaction with firstname2 lastname2 2 days ago
                          |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 
@@ -117,7 +117,7 @@ class EndToEndTests {
             expected = """Sorry, couldn't find 'unknown'
                          |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 
@@ -141,7 +141,7 @@ class EndToEndTests {
             expected = """Multiple entries found for 'firstname1'. Please also provide last name.
                          |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 
@@ -156,7 +156,7 @@ class EndToEndTests {
      |george-connect <path> <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
      |""".trimMargin(),
             actual = programOutput.toString(),
-            "output"
+            message = "output"
         )
     }
 }
