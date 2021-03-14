@@ -16,9 +16,9 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     } catch (e: TooManyArgsException) {
         display(
             """usage
-            |george-connect                             list all peer face-to-face interactions
-            |george-connect <first_name>                log new peer face-to-face interaction for existing peer
-            |george-connect <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
+            |george-connect <path>                             list all peer face-to-face interactions
+            |george-connect <path> <first_name>                log new peer face-to-face interaction for existing peer
+            |george-connect <path> <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
         """.trimMargin()
         )
     } catch (e: PeerLastInteractionDateHasWrongFormat) {
@@ -27,27 +27,30 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     }
 }
 
-fun inCase(argsAreEmpty: Boolean, onEmpty: () -> Unit, onNonEmpty: () -> Unit) {
-    when (argsAreEmpty) {
-        true -> onEmpty()
-        else -> onNonEmpty()
+fun inCase(argsOnlyContaintPath: Boolean, onShowInteractions: () -> Unit, onUpdatePeer: () -> Unit) {
+    when (argsOnlyContaintPath) {
+        true -> onShowInteractions()
+        else -> onUpdatePeer()
     }
 }
 
-fun parse(args: Array<String>, findBy: (firstName: String) -> Peer?) = when (args.size) {
-    2 -> {
-        val firstName = args[0]
-        val lastName = args[1]
-        Pair(firstName, lastName)
-    }
-    1 -> {
-        val firstName = args[0]
-        when (val p = findBy(firstName)) {
-            null -> throw PeerNotFoundException(firstName)
-            else -> Pair(p.firstName, p.lastName)
+fun parse(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Triple<String, String, String> {
+    val path = args[0]
+    return when (args.size) {
+        3 -> {
+            val firstName = args[1]
+            val lastName = args[2]
+            Triple(path, firstName, lastName)
         }
+        2 -> {
+            val firstName = args[1]
+            when (val p = findBy(firstName, path)) {
+                null -> throw PeerNotFoundException(firstName)
+                else -> Triple(path, p.firstName, p.lastName)
+            }
+        }
+        else -> throw TooManyArgsException()
     }
-    else -> throw TooManyArgsException()
 }
 
 class PeerNotFoundException(val firstName: String) : RuntimeException()

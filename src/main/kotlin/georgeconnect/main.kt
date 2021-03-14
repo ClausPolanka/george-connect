@@ -2,14 +2,14 @@ package georgeconnect
 
 fun main(args: Array<String>) {
     errorHandled(display = ::println) {
-        inCase(args.isEmpty(),
-            onEmpty = {
-                val peers = sortedPeers()
+        inCase(argsOnlyContaintPath = args.size == 1,
+            onShowInteractions = {
+                val peers = sortedPeersFrom(path = args[0])
                 showLastInteractionsWith(peers, display = ::println)
             },
-            onNonEmpty = {
+            onUpdatePeer = {
                 updatePeer(args)
-                val peers = sortedPeers()
+                val peers = sortedPeersFrom(path = args[0])
                 showLastInteractionsWith(peers, display = ::println)
             }
         )

@@ -71,36 +71,36 @@ class OperationsTests {
     @Test
     fun `in case args are empty run corresponding function`() {
         var actual = ""
-        inCase(argsAreEmpty = true, onEmpty = { actual = "ok" }, onNonEmpty = { /* Ignore */ })
+        inCase(argsOnlyContaintPath = true, onShowInteractions = { actual = "ok" }, onUpdatePeer = { /* Ignore */ })
         assertEquals(expected = "ok", actual, "args are empty")
     }
 
     @Test
     fun `in case args are nonempty run corresponding function`() {
         var actual = ""
-        inCase(argsAreEmpty = false, onEmpty = { /* Ignore */ }, onNonEmpty = { actual = "ok" })
+        inCase(argsOnlyContaintPath = false, onShowInteractions = { /* Ignore */ }, onUpdatePeer = { actual = "ok" })
         assertEquals(expected = "ok", actual, "args are nonempty")
     }
 
     @Test
-    fun `parse args containing two values`() {
-        val actual = parse(args = arrayOf("firstname", "lastname"), findBy = { null })
-        assertEquals(expected = Pair("firstname", "lastname"), actual, "result")
+    fun `parse args containing three values`() {
+        val actual = parse(args = arrayOf("path", "firstname", "lastname"), findBy = { _, _ -> null })
+        assertEquals(expected = Triple("path", "firstname", "lastname"), actual, "result")
     }
 
     @Test
-    fun `parse args containing one value`() {
+    fun `parse args containing two value`() {
         val actual = parse(
-            args = arrayOf("firstname"),
-            findBy = { Peer("firstname", "lastname", "ignore") }
+            args = arrayOf("path", "firstname"),
+            findBy = { firstName, _ ->  Peer(firstName, "lastname", "ignore") }
         )
-        assertEquals(expected = Pair("firstname", "lastname"), actual, "result")
+        assertEquals(expected = Triple("path", "firstname", "lastname"), actual, "result")
     }
 
     @Test
     fun `parse args containing one value which is unknown`() {
         val exception = assertThrows<PeerNotFoundException> {
-            parse(args = arrayOf("unknown"), findBy = { null })
+            parse(args = arrayOf("path", "unknown"), findBy = { _, _ -> null })
         }
         assertEquals(expected = "unknown", exception.firstName, "peer first name")
     }
@@ -108,7 +108,7 @@ class OperationsTests {
     @Test
     fun `parse args containing too many values`() {
         assertThrows<TooManyArgsException> {
-            parse(args = arrayOf("too", "many", "args"), findBy = { null })
+            parse(args = arrayOf("too", "many", "args", "foo"), findBy = { _, _ ->  null })
         }
     }
 
