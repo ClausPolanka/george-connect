@@ -153,8 +153,8 @@ class OperationsTests {
 
     @Test
     fun `does not throw if no peer exists for given first name`() {
-        val p1 = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-05")
-        val peers = mutableSetOf(p1)
+        val p = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-05")
+        val peers = mutableSetOf(p)
 
         assertDoesNotThrow {
             peers.throwIfDuplicatesExistFor("unknown")

@@ -1,4 +1,4 @@
-package it
+package it.georgeconnect
 
 import georgeconnect.Peer
 import georgeconnect.jsonsFrom
