@@ -22,7 +22,7 @@ class OperationsTests {
 
         val jsons = jsonsFrom(path = tempDir.toString())
 
-        assertEquals(expected = listOf(json1, json2), actual = jsons, "jsons")
+        assertEquals(expected = listOf(json1, json2), actual = jsons, message = "jsons")
     }
 
     @Test
