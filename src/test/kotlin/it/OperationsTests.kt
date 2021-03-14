@@ -26,7 +26,7 @@ class OperationsTests {
     }
 
     @Test
-    fun `UpdateJsonsFor given peer and path`(@TempDir tempDir: Path) {
+    fun `UpdateJsonFor given peer and path`(@TempDir tempDir: Path) {
         val jsonFile = tempDir.resolve("lastname_firstname1.json")
         val json = """{"firstName" : "firstname", "lastInteractionF2F" : "2021-03-03", "lastName" : "lastname"}"""
         Files.write(jsonFile, json.toByteArray(Charsets.UTF_8))
