@@ -62,7 +62,7 @@ class EndToEndTests {
         val date1 = LocalDate.now().minusDays(1)
         val date2 = LocalDate.now().minusDays(2)
 
-        val json1 = """{"firstName" : "firstname1", "lastInteractionF2F" : "$date1", "lastName" : "lastname1"}"""
+        val json1 = """{"firstName" : "Firstname1", "lastInteractionF2F" : "$date1", "lastName" : "lastname1"}"""
         val json2 = """{"firstName" : "firstname2", "lastInteractionF2F" : "$date2", "lastName" : "lastname2"}"""
 
         Files.write(jsonFile1, json1.toByteArray(Charsets.UTF_8))
@@ -93,7 +93,7 @@ class EndToEndTests {
         Files.write(jsonFile1, json1.toByteArray(Charsets.UTF_8))
         Files.write(jsonFile2, json2.toByteArray(Charsets.UTF_8))
 
-        main(arrayOf(tempDir.toString(), "firstname1", "lastname1"))
+        main(arrayOf(tempDir.toString(), "Firstname1", "Lastname1"))
 
         assertEquals(
             expected = """Last F2F interaction with firstname1 lastname1 today
