@@ -16,9 +16,10 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     } catch (e: WrongNumberOfArgsException) {
         display(
             """usage
-            |george-connect <path>                             list all peer face-to-face interactions
-            |george-connect <path> <first_name>                log new peer face-to-face interaction for existing peer
-            |george-connect <path> <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
+            |george-connect <path>                                         list all peer face-to-face interactions
+            |george-connect <path> <first_name>                            log new peer face-to-face interaction for existing peer
+            |george-connect <path> <first_name> <last_name>                log new peer face-to-face interaction for existing or new peer
+            |george-connect <path> <first_name> <last_name> <YYYY-MM-DD>   log new peer face-to-face interaction for existing or new peer by providing custom date
         """.trimMargin()
         )
     } catch (e: PeerLastInteractionDateHasWrongFormat) {

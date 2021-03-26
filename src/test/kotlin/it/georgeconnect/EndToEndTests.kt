@@ -177,9 +177,10 @@ class EndToEndTests {
 
         assertEquals(
             expected = """usage
-     |george-connect <path>                             list all peer face-to-face interactions
-     |george-connect <path> <first_name>                log new peer face-to-face interaction for existing peer
-     |george-connect <path> <first_name> <last_name>    log new peer face-to-face interaction for existing or new peer
+     |george-connect <path>                                         list all peer face-to-face interactions
+     |george-connect <path> <first_name>                            log new peer face-to-face interaction for existing peer
+     |george-connect <path> <first_name> <last_name>                log new peer face-to-face interaction for existing or new peer
+     |george-connect <path> <first_name> <last_name> <YYYY-MM-DD>   log new peer face-to-face interaction for existing or new peer by providing custom date
      |""".trimMargin(),
             actual = programOutput.toString(),
             message = "output"
