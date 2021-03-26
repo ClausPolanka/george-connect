@@ -105,6 +105,32 @@ class EndToEndTests {
     }
 
     @Test
+    fun `update peer based on firstname, lastname and date`(@TempDir tempDir: Path) {
+        val jsonFile1 = tempDir.resolve("lastname1_firstname1.json")
+        val jsonFile2 = tempDir.resolve("lastname2_firstname2.json")
+
+        val date1 = LocalDate.now().minusDays(1)
+        val date2 = LocalDate.now().minusDays(2)
+
+        val json1 = """{"firstName" : "firstname1", "lastInteractionF2F" : "$date1", "lastName" : "lastname1"}"""
+        val json2 = """{"firstName" : "firstname2", "lastInteractionF2F" : "$date2", "lastName" : "lastname2"}"""
+
+        Files.write(jsonFile1, json1.toByteArray(Charsets.UTF_8))
+        Files.write(jsonFile2, json2.toByteArray(Charsets.UTF_8))
+
+        val newDate = LocalDate.now().minusDays(3).toString()
+        main(arrayOf(tempDir.toString(), "firstname1", "Lastname1", newDate))
+
+        assertEquals(
+            expected = """Last F2F interaction with firstname2 lastname2 2 days ago
+                         |Last F2F interaction with firstname1 lastname1 3 days ago
+                         |""".trimMargin(),
+            actual = programOutput.toString(),
+            message = "output"
+        )
+    }
+
+    @Test
     fun `unknown first name`(@TempDir tempDir: Path) {
         val jsonFile = tempDir.resolve("lastname_firstname.json")
         val date = LocalDate.now().minusDays(1)
@@ -147,7 +173,7 @@ class EndToEndTests {
 
     @Test
     fun `too many args will prompt for usage`(@TempDir tempDir: Path) {
-        main(arrayOf("too", "many", "args", "foo"))
+        main(arrayOf("too", "many", "args", "foo", "bar"))
 
         assertEquals(
             expected = """usage

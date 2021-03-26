@@ -27,9 +27,8 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 }
 
 fun updatePeer(args: Array<String>) {
-    val (path, firstName, lastName) = parse(args, ::findPeerBy)
-    val p = Peer(firstName.toLowerCase(), lastName.toLowerCase(), LocalDate.now().toString())
-    updateJsonFor(p, path)
+    val (path, peer) = parse(args, ::findPeerBy)
+    updateJsonFor(peer, path)
 }
 
 private fun findPeerBy(firstName: String, path: String): Peer? {

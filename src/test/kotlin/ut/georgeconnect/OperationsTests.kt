@@ -50,7 +50,7 @@ class OperationsTests {
             display = { actual ->
                 assertTrue(actual.contains("usage"), "usage is '$actual'")
             },
-            georgeConnect = { throw TooManyArgsException() }
+            georgeConnect = { throw WrongNumberOfArgsException() }
         )
     }
 
@@ -83,18 +83,69 @@ class OperationsTests {
     }
 
     @Test
-    fun `parse args containing three values`() {
-        val actual = parse(args = arrayOf("path", "firstname", "lastname"), findBy = { _, _ -> null })
-        assertEquals(expected = Triple("path", "firstname", "lastname"), actual, "result")
+    fun `parse args containing four values`() {
+        val actual = parse(args = arrayOf("path", "firstname", "lastname", "2021-03-21"), findBy = { _, _ -> null })
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", "2021-03-21")),
+            actual,
+            "result"
+        )
     }
 
     @Test
-    fun `parse args containing two value`() {
+    fun `parse args containing four values (upper case)`() {
+        val actual = parse(args = arrayOf("path", "Firstname", "Lastname", "2021-03-21"), findBy = { _, _ -> null })
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", "2021-03-21")),
+            actual,
+            "result"
+        )
+    }
+
+    @Test
+    fun `parse args containing three values`() {
+        val actual = parse(args = arrayOf("path", "firstname", "lastname"), findBy = { _, _ -> null })
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", LocalDate.now().toString())),
+            actual,
+            "result"
+        )
+    }
+
+    @Test
+    fun `parse args containing three values (upper case)`() {
+        val actual = parse(args = arrayOf("path", "Firstname", "Lastname"), findBy = { _, _ -> null })
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", LocalDate.now().toString())),
+            actual,
+            "result"
+        )
+    }
+
+    @Test
+    fun `parse args containing two values`() {
         val actual = parse(
             args = arrayOf("path", "firstname"),
-            findBy = { firstName, _ ->  Peer(firstName, "lastname", "ignore") }
+            findBy = { firstName, _ ->  Peer(firstName, "lastname", "2021-03-26") }
         )
-        assertEquals(expected = Triple("path", "firstname", "lastname"), actual, "result")
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", "2021-03-26")),
+            actual,
+            "result"
+        )
+    }
+
+    @Test
+    fun `parse args containing two values (upper case)`() {
+        val actual = parse(
+            args = arrayOf("path", "Firstname"),
+            findBy = { firstName, _ ->  Peer(firstName, "Lastname", "2021-03-26") }
+        )
+        assertEquals(
+            expected = Pair("path", Peer("firstname", "lastname", "2021-03-26")),
+            actual,
+            "result"
+        )
     }
 
     @Test
@@ -107,8 +158,15 @@ class OperationsTests {
 
     @Test
     fun `parse args containing too many values`() {
-        assertThrows<TooManyArgsException> {
-            parse(args = arrayOf("too", "many", "args", "foo"), findBy = { _, _ ->  null })
+        assertThrows<WrongNumberOfArgsException> {
+            parse(args = arrayOf("too", "many", "args", "foo", "bar"), findBy = { _, _ ->  null })
+        }
+    }
+
+    @Test
+    fun `parse args containing not enough values`() {
+        assertThrows<WrongNumberOfArgsException> {
+            parse(args = emptyArray(), findBy = { _, _ ->  null })
         }
     }
 

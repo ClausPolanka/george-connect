@@ -13,7 +13,7 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
         display("Sorry, couldn't find '${e.firstName}'")
     } catch (e: MultipleEntriesFoundException) {
         display("Multiple entries found for '${e.firstName}'. Please also provide last name.")
-    } catch (e: TooManyArgsException) {
+    } catch (e: WrongNumberOfArgsException) {
         display(
             """usage
             |george-connect <path>                             list all peer face-to-face interactions
@@ -34,28 +34,39 @@ fun inCase(argsOnlyContaintPath: Boolean, onShowInteractions: () -> Unit, onUpda
     }
 }
 
-fun parse(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Triple<String, String, String> {
-    val path = args[0]
-    return when (args.size) {
-        3 -> {
+fun parse(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Pair<String, Peer> {
+        return when (args.size) {
+        4 -> {
+            val path = args[0]
             val firstName = args[1]
             val lastName = args[2]
-            Triple(path, firstName, lastName)
+            val date = args[3]
+            Pair(path, Peer(firstName.toLowerCase(), lastName.toLowerCase(), date))
+        }
+        3 -> {
+            val path = args[0]
+            val firstName = args[1]
+            val lastName = args[2]
+            Pair(path, Peer(firstName.toLowerCase(), lastName.toLowerCase(), LocalDate.now().toString()))
         }
         2 -> {
+            val path = args[0]
             val firstName = args[1]
             when (val p = findBy(firstName, path)) {
                 null -> throw PeerNotFoundException(firstName)
-                else -> Triple(path, p.firstName, p.lastName)
+                else -> Pair(
+                    path,
+                    Peer(p.firstName.toLowerCase(), p.lastName.toLowerCase(), LocalDate.now().toString())
+                )
             }
         }
-        else -> throw TooManyArgsException()
+        else -> throw WrongNumberOfArgsException()
     }
 }
 
 class PeerNotFoundException(val firstName: String) : RuntimeException()
 
-class TooManyArgsException : RuntimeException()
+class WrongNumberOfArgsException : RuntimeException()
 
 fun jsonsFrom(path: String): List<String> {
     return File(path).walk()
