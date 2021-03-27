@@ -10,23 +10,13 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     try {
         georgeConnect()
     } catch (e: PeerNotFoundException) {
-        display("Sorry, couldn't find '${e.firstName}'")
+        display(String.format(peerNotFoundFormat, e.firstName))
     } catch (e: MultipleEntriesFoundException) {
-        display("Multiple entries found for '${e.firstName}'. Please also provide last name.")
+        display(String.format(multipleEntriesFormat, e.firstName))
     } catch (e: WrongNumberOfArgsException) {
-        display(
-            """usage
-            |george-connect <path>                                         list all peer face-to-face interactions
-            |george-connect <path> <first_name>                            log new peer face-to-face interaction for existing peer
-            |george-connect <path> <first_name> <last_name>                log new peer face-to-face interaction for existing or new peer
-            |george-connect <path> <first_name> <last_name> <YYYY-MM-DD>   log new peer face-to-face interaction for existing or new peer by providing custom date
-        """.trimMargin()
-        )
+        display(usage)
     } catch (e: PeerLastInteractionDateHasWrongFormat) {
-        display(
-            "Unfortunately the last interaction date for '${e.peer.firstName} ${e.peer.lastName}'" +
-                    " has an unknown format: '${e.peer.lastInteractionF2F}'"
-        )
+        display(String.format(dateHasWrongFormat, e.peer.firstName, e.peer.lastName, e.peer.lastInteractionF2F))
     }
 }
 
