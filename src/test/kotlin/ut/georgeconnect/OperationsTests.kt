@@ -71,14 +71,14 @@ class OperationsTests {
     @Test
     fun `in case args are empty run corresponding function`() {
         var actual = ""
-        inCase(argsOnlyContaintPath = true, onShowInteractions = { actual = "ok" }, onUpdatePeer = { /* Ignore */ })
+        inCase(argsOnlyContainPath = true, onShowInteractions = { actual = "ok" }, onUpdatePeer = { /* Ignore */ })
         assertEquals(expected = "ok", actual, "args are empty")
     }
 
     @Test
     fun `in case args are nonempty run corresponding function`() {
         var actual = ""
-        inCase(argsOnlyContaintPath = false, onShowInteractions = { /* Ignore */ }, onUpdatePeer = { actual = "ok" })
+        inCase(argsOnlyContainPath = false, onShowInteractions = { /* Ignore */ }, onUpdatePeer = { actual = "ok" })
         assertEquals(expected = "ok", actual, "args are nonempty")
     }
 

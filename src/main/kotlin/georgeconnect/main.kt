@@ -3,7 +3,7 @@ package georgeconnect
 fun main(args: Array<String>) {
     val path = args[0]
     errorHandled(display = ::println) {
-        inCase(argsOnlyContaintPath = args.size == 1,
+        inCase(argsOnlyContainPath = args.size == 1,
             onShowInteractions = {
                 showInteractions(path)
             },

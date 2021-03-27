@@ -28,8 +28,8 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     }
 }
 
-fun inCase(argsOnlyContaintPath: Boolean, onShowInteractions: () -> Unit, onUpdatePeer: () -> Unit) {
-    when (argsOnlyContaintPath) {
+fun inCase(argsOnlyContainPath: Boolean, onShowInteractions: () -> Unit, onUpdatePeer: () -> Unit) {
+    when (argsOnlyContainPath) {
         true -> onShowInteractions()
         else -> onUpdatePeer()
     }
@@ -42,13 +42,13 @@ fun parse(args: Array<String>, findBy: (firstName: String, path: String) -> Peer
             val firstName = args[1]
             val lastName = args[2]
             val date = args[3]
-            Pair(path, Peer(firstName.toLowerCase(), lastName.toLowerCase(), date))
+            Pair(path, Peer(firstName, lastName, date))
         }
         3 -> {
             val path = args[0]
             val firstName = args[1]
             val lastName = args[2]
-            Pair(path, Peer(firstName.toLowerCase(), lastName.toLowerCase(), LocalDate.now().toString()))
+            Pair(path, Peer(firstName, lastName))
         }
         2 -> {
             val path = args[0]
@@ -57,7 +57,7 @@ fun parse(args: Array<String>, findBy: (firstName: String, path: String) -> Peer
                 null -> throw PeerNotFoundException(firstName)
                 else -> Pair(
                     path,
-                    Peer(p.firstName.toLowerCase(), p.lastName.toLowerCase(), LocalDate.now().toString())
+                    Peer(p.firstName, p.lastName)
                 )
             }
         }
