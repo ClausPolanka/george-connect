@@ -1,6 +1,7 @@
 package georgeconnect
 
 import com.beust.klaxon.Klaxon
+import java.lang.String.format
 import java.time.LocalDate
 
 fun showInteractions(path: String) {
@@ -22,7 +23,7 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
     peers.forEach {
         val days = it.lastInteractionF2FInDays(LocalDate::now)
         val output = outputFor(days)
-        display("Last F2F interaction with ${it.firstName} ${it.lastName} $output")
+        display(format(lastF2FInteractionFormat, it.firstName, it.lastName, output))
     }
 }
 

@@ -10,3 +10,4 @@ val usage: String = """usage
 const val peerNotFoundFormat = "Sorry, couldn't find '%s'"
 const val multipleEntriesFormat = "Multiple entries found for '%s'. Please also provide last name."
 const val dateHasWrongFormat = "Unfortunately the last interaction date for '%s %s' has an unknown format: '%s'"
+const val lastF2FInteractionFormat = "Last F2F interaction with %s %s %s"
