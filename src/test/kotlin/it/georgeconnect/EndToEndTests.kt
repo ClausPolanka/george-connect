@@ -172,7 +172,7 @@ class EndToEndTests {
     }
 
     @Test
-    fun `too many args will prompt for usage`(@TempDir tempDir: Path) {
+    fun `too many args will prompt for usage`() {
         main(arrayOf("too", "many", "args", "foo", "bar"))
 
         assertEquals(

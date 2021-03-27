@@ -27,11 +27,11 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 }
 
 fun updatePeer(args: Array<String>) {
-    val (path, peer) = parse(args, ::findPeerBy)
+    val (path, peer) = parse(args, ::parseFourArgs, ::parseThreeArgs, ::parseTwoArgs, ::findPeerBy)
     updateJsonFor(peer, path)
 }
 
-private fun findPeerBy(firstName: String, path: String): Peer? {
+fun findPeerBy(firstName: String, path: String): Peer? {
     val peers = peersFrom(path)
     peers.throwIfDuplicatesExistFor(firstName)
     return peers.find { it.firstName.equals(firstName, ignoreCase = true) }
