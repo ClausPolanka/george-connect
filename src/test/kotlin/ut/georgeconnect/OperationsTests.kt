@@ -129,7 +129,7 @@ class OperationsTests {
             findBy = { firstName, _ ->  Peer(firstName, "lastname", "2021-03-26") }
         )
         assertEquals(
-            expected = Pair("path", Peer("firstname", "lastname", "2021-03-26")),
+            expected = Pair("path", Peer("firstname", "lastname", LocalDate.now().toString())),
             actual,
             "result"
         )
@@ -142,7 +142,7 @@ class OperationsTests {
             findBy = { firstName, _ ->  Peer(firstName, "Lastname", "2021-03-26") }
         )
         assertEquals(
-            expected = Pair("path", Peer("firstname", "lastname", "2021-03-26")),
+            expected = Pair("path", Peer("firstname", "lastname", LocalDate.now().toString())),
             actual,
             "result"
         )
