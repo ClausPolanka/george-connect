@@ -2,6 +2,7 @@ package georgeconnect
 
 import com.beust.klaxon.Klaxon
 import java.io.File
+import java.lang.String.format
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
@@ -10,13 +11,13 @@ fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
     try {
         georgeConnect()
     } catch (e: PeerNotFoundException) {
-        display(String.format(peerNotFoundFormat, e.firstName))
+        display(format(peerNotFoundFormat, e.firstName))
     } catch (e: MultipleEntriesFoundException) {
-        display(String.format(multipleEntriesFormat, e.firstName))
+        display(format(multipleEntriesFormat, e.firstName))
     } catch (e: WrongNumberOfArgsException) {
         display(usage)
     } catch (e: PeerLastInteractionDateHasWrongFormat) {
-        display(String.format(dateHasWrongFormat, e.peer.firstName, e.peer.lastName, e.peer.lastInteractionF2F))
+        display(format(dateHasWrongFormat, e.peer.firstName, e.peer.lastName, e.peer.lastInteractionF2F))
     }
 }
 
