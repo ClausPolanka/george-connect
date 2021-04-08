@@ -43,21 +43,6 @@ fun parse(
     }
 }
 
-fun parseFourArgs(args: Array<String>): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    val lastName = args[2]
-    val date = args[3]
-    return Pair(path, Peer(firstName, lastName, date))
-}
-
-fun parseThreeArgs(args: Array<String>): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    val lastName = args[2]
-    return Pair(path, Peer(firstName, lastName))
-}
-
 fun parseTwoArgs(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Pair<String, Peer> {
     val path = args[0]
     val firstName = args[1]

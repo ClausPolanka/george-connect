@@ -32,6 +32,21 @@ fun updatePeer(args: Array<String>) {
     updateJsonFor(peer, path)
 }
 
+fun parseFourArgs(args: Array<String>): Pair<String, Peer> {
+    val path = args[0]
+    val firstName = args[1]
+    val lastName = args[2]
+    val date = args[3]
+    return Pair(path, Peer(firstName, lastName, date))
+}
+
+fun parseThreeArgs(args: Array<String>): Pair<String, Peer> {
+    val path = args[0]
+    val firstName = args[1]
+    val lastName = args[2]
+    return Pair(path, Peer(firstName, lastName))
+}
+
 fun findPeerBy(firstName: String, path: String): Peer? {
     val peers = peersFrom(path)
     peers.throwIfDuplicatesExistFor(firstName)
