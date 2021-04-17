@@ -1,6 +1,7 @@
 package georgeconnect
 
 import com.beust.klaxon.Klaxon
+import georgeconnect.FindStatus.*
 import java.lang.String.format
 import java.time.LocalDate
 
@@ -11,7 +12,7 @@ fun showInteractions(path: String) {
 
 private fun sortedPeersFrom(path: String): List<Peer> {
     val peers = peersFrom(path)
-    return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now)  }
+    return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 
 private fun peersFrom(path: String): MutableSet<Peer> {
@@ -27,28 +28,8 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
     }
 }
 
-fun updatePeer(args: Array<String>) {
-    val (path, peer) = parse(args, ::parseFourArgs, ::parseThreeArgs, ::parseTwoArgs, ::findPeerBy)
-    updateJsonFor(peer, path)
-}
-
-fun parseFourArgs(args: Array<String>): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    val lastName = args[2]
-    val date = args[3]
-    return Pair(path, Peer(firstName, lastName, date))
-}
-
-fun parseThreeArgs(args: Array<String>): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    val lastName = args[2]
-    return Pair(path, Peer(firstName, lastName))
-}
-
-fun findPeerBy(firstName: String, path: String): Peer? {
+fun findPeerBy(firstName: String, path: String): FindResult {
     val peers = peersFrom(path)
-    peers.throwIfDuplicatesExistFor(firstName)
-    return peers.find { it.firstName.equals(firstName, ignoreCase = true) }
+    val duplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
+    return toFindResult(duplicates)
 }

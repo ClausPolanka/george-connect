@@ -2,7 +2,7 @@ package it.georgeconnect
 
 import georgeconnect.Peer
 import georgeconnect.jsonsFrom
-import georgeconnect.updateJsonFor
+import georgeconnect.createOrUpdateJsonFor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -31,7 +31,7 @@ class OperationsIntegrationTests {
         val json = """{"firstName" : "firstname", "lastInteractionF2F" : "2021-03-03", "lastName" : "lastname"}"""
         Files.write(jsonFile, json.toByteArray(Charsets.UTF_8))
 
-        updateJsonFor(
+        createOrUpdateJsonFor(
             p = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-10"),
             path = tempDir.toString()
         )
