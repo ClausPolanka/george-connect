@@ -1,63 +1,12 @@
 package georgeconnect
 
 import com.beust.klaxon.Klaxon
+import georgeconnect.FindStatus.*
+import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
-import java.lang.String.format
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
-
-fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
-    try {
-        georgeConnect()
-    } catch (e: PeerNotFoundException) {
-        display(format(peerNotFoundFormat, e.firstName))
-    } catch (e: MultipleEntriesFoundException) {
-        display(format(multipleEntriesFormat, e.firstName))
-    } catch (e: WrongNumberOfArgsException) {
-        display(usage)
-    } catch (e: PeerLastInteractionDateHasWrongFormat) {
-        display(format(dateHasWrongFormat, e.peer.firstName, e.peer.lastName, e.peer.lastInteractionF2F))
-    }
-}
-
-fun inCase(argsOnlyContainPath: Boolean, onShowInteractions: () -> Unit, onUpdatePeer: () -> Unit) {
-    when (argsOnlyContainPath) {
-        true -> onShowInteractions()
-        else -> onUpdatePeer()
-    }
-}
-
-fun parse(
-    args: Array<String>,
-    onFourArgs: (args: Array<String>) -> Pair<String, Peer>,
-    onThreeArgs: (args: Array<String>) -> Pair<String, Peer>,
-    onTwoArgs: (args: Array<String>, findBy: (firstName: String, path: String) -> Peer?) -> Pair<String, Peer>,
-    findBy: (firstName: String, path: String) -> Peer?
-): Pair<String, Peer> {
-    return when (args.size) {
-        4 -> onFourArgs(args)
-        3 -> onThreeArgs(args)
-        2 -> onTwoArgs(args, findBy)
-        else -> throw WrongNumberOfArgsException()
-    }
-}
-
-fun parseTwoArgs(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    return when (val p = findBy(firstName, path)) {
-        null -> throw PeerNotFoundException(firstName)
-        else -> Pair(
-            path,
-            Peer(p.firstName, p.lastName)
-        )
-    }
-}
-
-class PeerNotFoundException(val firstName: String) : RuntimeException()
-
-class WrongNumberOfArgsException : RuntimeException()
 
 fun jsonsFrom(path: String): List<String> {
     return File(path).walk()
@@ -70,18 +19,15 @@ fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Pe
     return jsons.mapNotNull { jsonToPeer(it) }.toMutableSet()
 }
 
-fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
-    val result = this.filter { it.firstName == firstName }
-    if (result.size > 1) {
-        throw MultipleEntriesFoundException(firstName)
-    }
-}
-
-class MultipleEntriesFoundException(val firstName: String) : RuntimeException()
-
-fun updateJsonFor(p: Peer, path: String) {
+fun createOrUpdateJsonFor(p: Peer, path: String): CreateOrUpdateStatus {
     val json = Klaxon().toJsonString(p)
-    File("$path/${p.lastName}_${p.firstName}.json").writeText(json)
+    return try {
+        val f = File("$path/${p.lastName}_${p.firstName}.json")
+        f.writeText(json)
+        CreateOrUpdateStatus.SUCCESS
+    } catch (e: Exception) {
+        CreateOrUpdateStatus.FILE_ERROR
+    }
 }
 
 fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long {
@@ -100,5 +46,36 @@ fun outputFor(days: Long): String {
         days == 0L -> "today"
         days > 1 -> "$days days ago"
         else -> "$days day ago"
+    }
+}
+
+fun createOrUpdate(
+    createOrUpdate: (p: Peer, path: String) -> CreateOrUpdateStatus,
+    dataPath: String,
+    peer: Peer,
+    onSuccess: (s: String) -> Unit,
+    onFileError: (msg: String) -> Unit
+) {
+    when (createOrUpdate(peer, dataPath)) {
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(dataPath)
+        CreateOrUpdateStatus.FILE_ERROR -> onFileError("While creating or updating, something went wrong")
+    }
+}
+
+fun toCommand(args: Array<String>): GeorgeConnectCommands {
+    return when (args.size) {
+        1 -> SHOW_INTERACTIONS
+        2 -> UPDATE_BY_FIRST_NAME
+        3 -> CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME
+        4 -> CREATE_OR_UPDATE_WITH_CUSTOM_DATE
+        else -> WRONG_NR_OF_ARGS
+    }
+}
+
+fun toFindResult(peers: List<Peer>): FindResult {
+    return when {
+        peers.size > 1 -> FindResult(peers[0], DUPLICATE_PEER_BY_FIRST_NAME)
+        peers.size == 1 -> FindResult(peers[0], SUCCESS)
+        else -> FindResult(null, PEER_UNKNOWN)
     }
 }
