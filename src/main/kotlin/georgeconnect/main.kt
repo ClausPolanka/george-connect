@@ -13,7 +13,7 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
     return when (toCommand(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
         SHOW_INTERACTIONS -> ShowInteractionsCmd(
-            FileDeserializer(
+            fileAdapter(
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
@@ -22,7 +22,7 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
         )
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
             firstName = args[1],
-            FileDeserializer(
+            fileAdapter(
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
@@ -32,7 +32,7 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             firstName = args[1],
             lastName = args[2],
-            FileDeserializer(
+            fileAdapter(
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
@@ -43,7 +43,7 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
             firstName = args[1],
             lastName = args[2],
             date = args[3],
-            FileDeserializer(
+            fileAdapter(
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
@@ -64,21 +64,21 @@ class ShowUsageCmd : GeorgeConnectCmd {
 }
 
 class ShowInteractionsCmd(
-    private val fileDeserializer: FileDeserializer,
+    private val fileAdapter: fileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        showInteractions(fileDeserializer, display)
+        showInteractions(fileAdapter, display)
     }
 }
 
 class UpdatePeerByFirstNameCmd(
     private val firstName: String,
-    private val fileDeserializer: FileDeserializer,
+    private val fileAdapter: fileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        val result = findPeerBy(firstName, fileDeserializer.dataPath)
+        val result = findPeerBy(firstName, fileAdapter(fileAdapter.dataPath, ::jsonsFrom, Klaxon()::parse))
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
                 createOrUpdate(
@@ -86,7 +86,7 @@ class UpdatePeerByFirstNameCmd(
                     Peer(result.peer.firstName, result.peer.lastName),
                     ::showInteractions,
                     display,
-                    fileDeserializer
+                    fileAdapter
                 )
             }
             FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
@@ -99,7 +99,7 @@ class CreateOrUpdateWithCustomDateCmd(
     private val firstName: String,
     private val lastName: String,
     private val date: String,
-    private val fileDeserializer: FileDeserializer,
+    private val fileAdapter: fileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
@@ -108,7 +108,7 @@ class CreateOrUpdateWithCustomDateCmd(
             Peer(firstName, lastName, date),
             ::showInteractions,
             display,
-            fileDeserializer
+            fileAdapter
         )
     }
 }
@@ -116,7 +116,7 @@ class CreateOrUpdateWithCustomDateCmd(
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
     private val firstName: String,
     private val lastName: String,
-    private val fileDeserializer: FileDeserializer,
+    private val fileAdapter: fileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
@@ -125,7 +125,7 @@ class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             Peer(firstName, lastName),
             ::showInteractions,
             display,
-            fileDeserializer
+            fileAdapter
         )
     }
 }

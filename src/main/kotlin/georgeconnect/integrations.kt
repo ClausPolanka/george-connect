@@ -1,22 +1,21 @@
 package georgeconnect
 
-import com.beust.klaxon.Klaxon
 import java.lang.String.format
 import java.time.LocalDate
 
-fun showInteractions(fileDeserializer: FileDeserializer, display: (s: String) -> Unit) {
-    val peers = sortedPeersFrom(fileDeserializer)
+fun showInteractions(fileAdapter: fileAdapter, display: (s: String) -> Unit) {
+    val peers = sortedPeersFrom(fileAdapter)
     showLastInteractionsWith(peers, display)
 }
 
-private fun sortedPeersFrom(fileDeserializer: FileDeserializer): List<Peer> {
-    val peers = peersFrom(fileDeserializer)
+private fun sortedPeersFrom(fileAdapter: fileAdapter): List<Peer> {
+    val peers = loadPeersFromFileSystem(fileAdapter)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 
-private fun peersFrom(fileDeserializer: FileDeserializer): MutableSet<Peer> {
-    val fileData = fileDeserializer.loadFileData(fileDeserializer.dataPath)
-    return peersFrom(fileData, fileDeserializer.deserializePeer)
+private fun loadPeersFromFileSystem(fileAdapter: fileAdapter): MutableSet<Peer> {
+    val fileData = fileAdapter.loadFileData(fileAdapter.dataPath)
+    return peersFrom(fileData, fileAdapter.deserializePeer)
 }
 
 private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
@@ -27,8 +26,8 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
     }
 }
 
-fun findPeerBy(firstName: String, path: String): FindResult {
-    val peers = peersFrom(FileDeserializer(path, ::jsonsFrom, Klaxon()::parse))
+fun findPeerBy(firstName: String, fileAdapter: fileAdapter): FindResult {
+    val peers = loadPeersFromFileSystem(fileAdapter)
     val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
     return findDuplicates(potentialDuplicates, firstName)
 }
