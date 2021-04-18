@@ -1,6 +1,5 @@
 package georgeconnect
 
-import com.beust.klaxon.Klaxon
 import georgeconnect.FindStatus.*
 import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
@@ -8,9 +7,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
-fun jsonsFrom(path: String): List<String> {
+fun filesFrom(path: String, extension: String): List<String> {
     return File(path).walk()
-        .filter { it.extension == "json" }
+        .filter { it.extension == extension }
         .map { it.readText(Charsets.UTF_8) }
         .toList()
 }
@@ -19,14 +18,14 @@ fun peersFrom(serializedPeers: List<String>, deserializePeer: (String) -> Peer?)
     return serializedPeers.mapNotNull { deserializePeer(it) }.toMutableSet()
 }
 
-fun createOrUpdateJsonFor(p: Peer, path: String): CreateOrUpdateStatus {
-    val json = Klaxon().toJsonString(p)
+fun createOrUpdatePeerOnFileSystem(p: Peer, fileAdapter: FileAdapter): CreateOrUpdateStatus {
+    val serializedPeer = fileAdapter.serializePeer(p)
     return try {
-        val f = File("$path/${p.lastName}_${p.firstName}.json")
-        f.writeText(json)
+        val f = File("${fileAdapter.dataPath}/${p.lastName}_${p.firstName}.${fileAdapter.extension}")
+        f.writeText(serializedPeer)
         CreateOrUpdateStatus.SUCCESS
     } catch (e: Exception) {
-        CreateOrUpdateStatus.FILE_ERROR
+        CreateOrUpdateStatus.ERROR
     }
 }
 
@@ -49,16 +48,16 @@ fun outputFor(days: Long): String {
     }
 }
 
-fun createOrUpdate(
-    createOrUpdate: (p: Peer, path: String) -> CreateOrUpdateStatus,
+fun createOrUpdatePeer(
+    createOrUpdate: (p: Peer, fileAdapter: FileAdapter) -> CreateOrUpdateStatus,
     peer: Peer,
-    onSuccess: (fileAdapter: fileAdapter, display: (msg: String) -> Unit) -> Unit,
-    onFileError: (msg: String) -> Unit,
-    fileAdapter: fileAdapter
+    onSuccess: (fileAdapter: FileAdapter, display: (msg: String) -> Unit) -> Unit,
+    onError: (msg: String) -> Unit,
+    fileAdapter: FileAdapter
 ) {
-    when (createOrUpdate(peer, fileAdapter.dataPath)) {
-        CreateOrUpdateStatus.SUCCESS -> onSuccess(fileAdapter, onFileError)
-        CreateOrUpdateStatus.FILE_ERROR -> onFileError("While creating or updating, something went wrong")
+    when (createOrUpdate(peer, fileAdapter)) {
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(fileAdapter, onError)
+        CreateOrUpdateStatus.ERROR -> onError("While creating or updating, something went wrong")
     }
 }
 

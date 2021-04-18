@@ -3,18 +3,18 @@ package georgeconnect
 import java.lang.String.format
 import java.time.LocalDate
 
-fun showInteractions(fileAdapter: fileAdapter, display: (s: String) -> Unit) {
+fun showInteractions(fileAdapter: FileAdapter, display: (s: String) -> Unit) {
     val peers = sortedPeersFromFileSystem(fileAdapter)
     showLastInteractionsWith(peers, display)
 }
 
-private fun sortedPeersFromFileSystem(fileAdapter: fileAdapter): List<Peer> {
-    val peers = loadPeersFromFileSystem(fileAdapter)
+private fun sortedPeersFromFileSystem(FileAdapter: FileAdapter): List<Peer> {
+    val peers = loadPeersFromFileSystem(FileAdapter)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 
-private fun loadPeersFromFileSystem(fileAdapter: fileAdapter): MutableSet<Peer> {
-    val fileData = fileAdapter.loadFileData(fileAdapter.dataPath)
+private fun loadPeersFromFileSystem(fileAdapter: FileAdapter): MutableSet<Peer> {
+    val fileData = fileAdapter.loadFileData(fileAdapter.dataPath, fileAdapter.extension)
     return peersFrom(fileData, fileAdapter.deserializePeer)
 }
 
@@ -26,8 +26,8 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
     }
 }
 
-fun findPeerBy(firstName: String, fileAdapter: fileAdapter): FindResult {
-    val peers = loadPeersFromFileSystem(fileAdapter)
+fun findPeerBy(firstName: String, FileAdapter: FileAdapter): FindResult {
+    val peers = loadPeersFromFileSystem(FileAdapter)
     val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
     return findDuplicates(potentialDuplicates, firstName)
 }

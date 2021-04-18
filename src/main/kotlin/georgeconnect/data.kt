@@ -40,7 +40,7 @@ enum class FindStatus {
 }
 
 enum class CreateOrUpdateStatus {
-    SUCCESS, FILE_ERROR
+    SUCCESS, ERROR
 }
 
 enum class GeorgeConnectCommands {
@@ -51,8 +51,10 @@ enum class GeorgeConnectCommands {
     CREATE_OR_UPDATE_WITH_CUSTOM_DATE
 }
 
-data class fileAdapter(
+data class FileAdapter(
     val dataPath: String,
-    val loadFileData: (path: String) -> List<String>,
-    val deserializePeer: (String) -> Peer?
+    val loadFileData: (path: String, extension: String) -> List<String>,
+    val deserializePeer: (String) -> Peer?,
+    val serializePeer: (Peer) -> String,
+    val extension: String
 )

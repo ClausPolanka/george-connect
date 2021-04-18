@@ -13,29 +13,35 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
     return when (toCommand(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
         SHOW_INTERACTIONS -> ShowInteractionsCmd(
-            fileAdapter(
+            FileAdapter(
                 dataPath = args[0],
-                loadFileData = ::jsonsFrom,
-                deserializePeer = Klaxon()::parse
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
             ),
             display = ::println
         )
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
             firstName = args[1],
-            fileAdapter(
+            FileAdapter(
                 dataPath = args[0],
-                loadFileData = ::jsonsFrom,
-                deserializePeer = Klaxon()::parse
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
             ),
             display = ::println
         )
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             firstName = args[1],
             lastName = args[2],
-            fileAdapter(
+            FileAdapter(
                 dataPath = args[0],
-                loadFileData = ::jsonsFrom,
-                deserializePeer = Klaxon()::parse
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
             ),
             display = ::println
         )
@@ -43,10 +49,12 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
             firstName = args[1],
             lastName = args[2],
             date = args[3],
-            fileAdapter(
+            FileAdapter(
                 dataPath = args[0],
-                loadFileData = ::jsonsFrom,
-                deserializePeer = Klaxon()::parse
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
             ),
             display = ::println
         )
@@ -64,7 +72,7 @@ class ShowUsageCmd : GeorgeConnectCmd {
 }
 
 class ShowInteractionsCmd(
-    private val fileAdapter: fileAdapter,
+    private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
@@ -74,15 +82,15 @@ class ShowInteractionsCmd(
 
 class UpdatePeerByFirstNameCmd(
     private val firstName: String,
-    private val fileAdapter: fileAdapter,
+    private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        val result = findPeerBy(firstName, fileAdapter(fileAdapter.dataPath, ::jsonsFrom, Klaxon()::parse))
+        val result = findPeerBy(firstName, fileAdapter)
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
-                createOrUpdate(
-                    ::createOrUpdateJsonFor,
+                createOrUpdatePeer(
+                    ::createOrUpdatePeerOnFileSystem,
                     Peer(result.peer.firstName, result.peer.lastName),
                     ::showInteractions,
                     display,
@@ -99,12 +107,12 @@ class CreateOrUpdateWithCustomDateCmd(
     private val firstName: String,
     private val lastName: String,
     private val date: String,
-    private val fileAdapter: fileAdapter,
+    private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        createOrUpdate(
-            ::createOrUpdateJsonFor,
+        createOrUpdatePeer(
+            ::createOrUpdatePeerOnFileSystem,
             Peer(firstName, lastName, date),
             ::showInteractions,
             display,
@@ -116,12 +124,12 @@ class CreateOrUpdateWithCustomDateCmd(
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
     private val firstName: String,
     private val lastName: String,
-    private val fileAdapter: fileAdapter,
+    private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        createOrUpdate(
-            ::createOrUpdateJsonFor,
+        createOrUpdatePeer(
+            ::createOrUpdatePeerOnFileSystem,
             Peer(firstName, lastName),
             ::showInteractions,
             display,
