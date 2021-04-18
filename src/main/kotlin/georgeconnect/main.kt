@@ -18,16 +18,16 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
             ),
-            ::println
+            display = ::println
         )
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
             firstName = args[1],
-            ::println,
             FileDeserializer(
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
-            )
+            ),
+            display = ::println
         )
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             firstName = args[1],
@@ -36,7 +36,8 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
-            )
+            ),
+            display = ::println
         )
         CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
             firstName = args[1],
@@ -46,7 +47,8 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
-            )
+            ),
+            display = ::println
         )
     }
 }
@@ -72,8 +74,8 @@ class ShowInteractionsCmd(
 
 class UpdatePeerByFirstNameCmd(
     private val firstName: String,
-    private val display: (msg: String) -> Unit,
-    private val fileDeserializer: FileDeserializer
+    private val fileDeserializer: FileDeserializer,
+    private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
         val result = findPeerBy(firstName, fileDeserializer.dataPath)
@@ -97,14 +99,15 @@ class CreateOrUpdateWithCustomDateCmd(
     private val firstName: String,
     private val lastName: String,
     private val date: String,
-    private val fileDeserializer: FileDeserializer
+    private val fileDeserializer: FileDeserializer,
+    private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdate(
             ::createOrUpdateJsonFor,
             Peer(firstName, lastName, date),
             ::showInteractions,
-            ::println,
+            display,
             fileDeserializer
         )
     }
@@ -113,14 +116,15 @@ class CreateOrUpdateWithCustomDateCmd(
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
     private val firstName: String,
     private val lastName: String,
-    private val fileDeserializer: FileDeserializer
+    private val fileDeserializer: FileDeserializer,
+    private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdate(
             ::createOrUpdateJsonFor,
             Peer(firstName, lastName),
             ::showInteractions,
-            ::println,
+            display,
             fileDeserializer
         )
     }
