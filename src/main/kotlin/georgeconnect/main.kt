@@ -12,7 +12,7 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
     return when (toCommand(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
         SHOW_INTERACTIONS -> ShowInteractionsCmd(dataPath = args[0])
-        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(dataPath = args[0], firstName = args[1])
+        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(dataPath = args[0], firstName = args[1], ::println)
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             dataPath = args[0],
             firstName = args[1],
@@ -43,24 +43,25 @@ class ShowInteractionsCmd(val dataPath: String) : GeorgeConnectCmd {
     }
 }
 
-class UpdatePeerByFirstNameCmd(val dataPath: String, val firstName: String) : GeorgeConnectCmd {
+class UpdatePeerByFirstNameCmd(
+    private val dataPath: String,
+    private val firstName: String,
+    private val display: (msg: String) -> Unit
+) : GeorgeConnectCmd {
     override fun execute() {
         val result = findPeerBy(firstName, dataPath)
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
-                if (result.peer == null) {
-                    return
-                }
                 createOrUpdate(
                     ::createOrUpdateJsonFor,
                     dataPath,
                     Peer(result.peer.firstName, result.peer.lastName),
                     ::showInteractions,
-                    ::println
+                    display
                 )
             }
-            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> println(format(multipleEntriesFormat, firstName))
-            FindStatus.PEER_UNKNOWN -> println(format(peerNotFoundFormat, firstName))
+            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
+            FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, firstName))
         }
     }
 }

@@ -33,7 +33,7 @@ class Peer(
     }
 }
 
-data class FindResult(val peer: Peer?, val findStatus: FindStatus)
+data class FindResult(val peer: Peer, val findStatus: FindStatus)
 
 enum class FindStatus {
     SUCCESS, DUPLICATE_PEER_BY_FIRST_NAME, PEER_UNKNOWN

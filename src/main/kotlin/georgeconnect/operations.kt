@@ -76,6 +76,6 @@ fun toFindResult(peers: List<Peer>): FindResult {
     return when {
         peers.size > 1 -> FindResult(peers[0], DUPLICATE_PEER_BY_FIRST_NAME)
         peers.size == 1 -> FindResult(peers[0], SUCCESS)
-        else -> FindResult(null, PEER_UNKNOWN)
+        else -> FindResult(Peer("unknown", "unknown"), PEER_UNKNOWN)
     }
 }
