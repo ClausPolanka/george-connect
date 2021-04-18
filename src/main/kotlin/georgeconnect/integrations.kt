@@ -19,15 +19,7 @@ private fun loadPeersFromFileSystem(fileAdapter: FileAdapter): MutableSet<Peer> 
 }
 
 private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
-    peers.forEach {
-        when(val days = it.lastInteractionF2FInDays(LocalDate::now)) {
-            null -> display("Please check: '$it' last interaction date")
-            else -> {
-                val output = outputFor(days)
-                display(format(lastF2FInteractionFormat, it.firstName, it.lastName, output))
-            }
-        }
-    }
+    peers.forEach { showLastF2FInteraction(it, ::outputFor, display) }
 }
 
 fun findPeerBy(firstName: String, FileAdapter: FileAdapter): FindResult {

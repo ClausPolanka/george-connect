@@ -131,3 +131,13 @@ fun findDuplicates(peers: List<Peer>, firstName: String): FindResult {
         else -> FindResult(Peer(firstName, "unknown"), PEER_UNKNOWN)
     }
 }
+
+fun showLastF2FInteraction(peer: Peer, outputForDays: (days: Long) -> String, display: (s: String) -> Unit) {
+    when(val days = peer.lastInteractionF2FInDays(LocalDate::now)) {
+        null -> display("Please check: '$peer' last interaction date")
+        else -> {
+            val output = outputForDays(days)
+            display(java.lang.String.format(lastF2FInteractionFormat, peer.firstName, peer.lastName, output))
+        }
+    }
+}
