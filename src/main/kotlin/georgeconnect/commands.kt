@@ -1,5 +1,7 @@
 package georgeconnect
 
+import java.lang.String.format
+
 interface GeorgeConnectCmd {
     fun execute()
 }
@@ -36,13 +38,8 @@ class UpdatePeerByFirstNameCmd(
                     fileAdapter = fileAdapter
                 )
             }
-            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(
-                java.lang.String.format(
-                    multipleEntriesFormat,
-                    firstName
-                )
-            )
-            FindStatus.PEER_UNKNOWN -> display(java.lang.String.format(peerNotFoundFormat, firstName))
+            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
+            FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, firstName))
         }
     }
 }
