@@ -18,14 +18,12 @@ fun parse(
         SHOW_INTERACTIONS -> ShowInteractionsCmd(createFileAdapter(args), display)
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(firstName = args[1], createFileAdapter(args), display)
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
-            firstName = args[1],
-            lastName = args[2],
+            Peer(firstName = args[1], lastName = args[2]),
             createFileAdapter(args),
             display
         )
         CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
-            firstName = args[1],
-            lastName = args[2],
+            Peer(firstName = args[1], lastName = args[2]),
             date = args[3],
             createFileAdapter(args),
             display

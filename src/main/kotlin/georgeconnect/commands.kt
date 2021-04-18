@@ -32,10 +32,10 @@ class UpdatePeerByFirstNameCmd(
             FindStatus.SUCCESS -> {
                 createOrUpdatePeer(
                     createOrUpdate = ::createOrUpdatePeerOnFileSystem,
-                    peer = Peer(result.peer.firstName, result.peer.lastName),
+                    Peer(result.peer.firstName, result.peer.lastName),
                     onSuccess = ::showInteractions,
                     onError = display,
-                    fileAdapter = fileAdapter
+                    fileAdapter
                 )
             }
             FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
@@ -45,8 +45,7 @@ class UpdatePeerByFirstNameCmd(
 }
 
 class CreateOrUpdateWithCustomDateCmd(
-    private val firstName: String,
-    private val lastName: String,
+    private val peer: Peer,
     private val date: String,
     private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
@@ -54,26 +53,25 @@ class CreateOrUpdateWithCustomDateCmd(
     override fun execute() {
         createOrUpdatePeer(
             createOrUpdate = ::createOrUpdatePeerOnFileSystem,
-            peer = Peer(firstName, lastName, date),
+            peer,
             onSuccess = ::showInteractions,
             onError = display,
-            fileAdapter = fileAdapter
+            fileAdapter
         )
     }
 }
 
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
-    private val firstName: String,
-    private val lastName: String,
+    private val peer: Peer,
     private val fileAdapter: FileAdapter,
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdatePeer(
-            ::createOrUpdatePeerOnFileSystem,
-            Peer(firstName, lastName),
-            ::showInteractions,
-            display,
+            createOrUpdate = ::createOrUpdatePeerOnFileSystem,
+            peer,
+            onSuccess = ::showInteractions,
+            onError = display,
             fileAdapter
         )
     }
