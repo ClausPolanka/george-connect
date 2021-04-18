@@ -1,6 +1,5 @@
 package georgeconnect
 
-import java.lang.String.format
 import java.time.LocalDate
 
 fun showInteractions(fileAdapter: FileAdapter, display: (s: String) -> Unit) {
