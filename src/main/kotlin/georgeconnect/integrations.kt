@@ -4,9 +4,9 @@ import com.beust.klaxon.Klaxon
 import java.lang.String.format
 import java.time.LocalDate
 
-fun showInteractions(fileDeserializer: FileDeserializer) {
+fun showInteractions(fileDeserializer: FileDeserializer, display: (s: String) -> Unit) {
     val peers = sortedPeersFrom(fileDeserializer)
-    showLastInteractionsWith(peers, display = ::println)
+    showLastInteractionsWith(peers, display)
 }
 
 private fun sortedPeersFrom(fileDeserializer: FileDeserializer): List<Peer> {

@@ -17,7 +17,8 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
                 dataPath = args[0],
                 loadFileData = ::jsonsFrom,
                 deserializePeer = Klaxon()::parse
-            )
+            ),
+            ::println
         )
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
             firstName = args[1],
@@ -60,9 +61,12 @@ class ShowUsageCmd : GeorgeConnectCmd {
     }
 }
 
-class ShowInteractionsCmd(private val fileDeserializer: FileDeserializer) : GeorgeConnectCmd {
+class ShowInteractionsCmd(
+    private val fileDeserializer: FileDeserializer,
+    private val display: (msg: String) -> Unit
+) : GeorgeConnectCmd {
     override fun execute() {
-        showInteractions(fileDeserializer)
+        showInteractions(fileDeserializer, display)
     }
 }
 
