@@ -35,7 +35,7 @@ class OperationsIntegrationTests {
 
         createOrUpdatePeerOnFileSystem(
             p = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-10"),
-            fileAdapter = FileAdapter(
+            fa = FileAdapter(
                 dataPath = tempDir.toString(),
                 loadFileData = { _, _ -> ignore() },
                 serializePeer = Klaxon()::toJsonString,

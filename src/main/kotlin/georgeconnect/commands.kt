@@ -24,20 +24,17 @@ class ShowInteractionsCmd(
 class UpdatePeerByFirstNameCmd(
     private val firstName: String,
     private val fileAdapter: FileAdapter,
-    private val display: (msg: String) -> Unit
+    private val display: (msg: String) -> Unit,
+    private val createOrUpdateAndShowPeers: (p: Peer, display: (msg: String) -> Unit, fa: FileAdapter) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
         val result = findPeerBy(firstName, fileAdapter, display)
         when (result.findStatus) {
-            FindStatus.SUCCESS -> {
-                createOrUpdatePeer(
-                    createOrUpdate = ::createOrUpdatePeerOnFileSystem,
-                    Peer(result.peer.firstName, result.peer.lastName),
-                    onSuccess = ::showInteractions,
-                    onError = display,
-                    fileAdapter
-                )
-            }
+            FindStatus.SUCCESS -> createOrUpdateAndShowPeers(
+                Peer(result.peer.firstName, result.peer.lastName),
+                display,
+                fileAdapter
+            )
             FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
             FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, firstName))
         }
@@ -46,33 +43,22 @@ class UpdatePeerByFirstNameCmd(
 
 class CreateOrUpdateWithCustomDateCmd(
     private val peer: Peer,
-    private val date: String,
     private val fileAdapter: FileAdapter,
-    private val display: (msg: String) -> Unit
+    private val display: (msg: String) -> Unit,
+    private val createOrUpdateAndShowPeers: (p: Peer, display: (msg: String) -> Unit, fa: FileAdapter) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        createOrUpdatePeer(
-            createOrUpdate = ::createOrUpdatePeerOnFileSystem,
-            peer,
-            onSuccess = ::showInteractions,
-            onError = display,
-            fileAdapter
-        )
+        createOrUpdateAndShowPeers(peer, display, fileAdapter)
     }
 }
 
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
     private val peer: Peer,
     private val fileAdapter: FileAdapter,
-    private val display: (msg: String) -> Unit
+    private val display: (msg: String) -> Unit,
+    private val createOrUpdateAndShowPeers: (p: Peer, display: (msg: String) -> Unit, fa: FileAdapter) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        createOrUpdatePeer(
-            createOrUpdate = ::createOrUpdatePeerOnFileSystem,
-            peer,
-            onSuccess = ::showInteractions,
-            onError = display,
-            fileAdapter
-        )
+        createOrUpdateAndShowPeers(peer, display, fileAdapter)
     }
 }

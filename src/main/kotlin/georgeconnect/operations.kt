@@ -16,17 +16,23 @@ fun parse(
     return when (argsToCommands(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
         SHOW_INTERACTIONS -> ShowInteractionsCmd(createFileAdapter(args), display)
-        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(firstName = args[1], createFileAdapter(args), display)
+        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
+            firstName = args[1],
+            createFileAdapter(args),
+            display,
+            ::createOrUpdateAndShowPeers
+        )
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             Peer(firstName = args[1], lastName = args[2]),
             createFileAdapter(args),
-            display
+            display,
+            ::createOrUpdateAndShowPeers
         )
         CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
-            Peer(firstName = args[1], lastName = args[2]),
-            date = args[3],
+            Peer(firstName = args[1], lastName = args[2], lastInteractionF2F = args[3]),
             createFileAdapter(args),
-            display
+            display,
+            ::createOrUpdateAndShowPeers
         )
     }
 }
@@ -62,10 +68,10 @@ fun peersFrom(
     }.toMutableSet()
 }
 
-fun createOrUpdatePeerOnFileSystem(p: Peer, fileAdapter: FileAdapter): CreateOrUpdateStatus {
-    val serializedPeer = fileAdapter.serializePeer(p)
+fun createOrUpdatePeerOnFileSystem(p: Peer, fa: FileAdapter): CreateOrUpdateStatus {
+    val serializedPeer = fa.serializePeer(p)
     return try {
-        val f = File("${fileAdapter.dataPath}/${p.lastName}_${p.firstName}.${fileAdapter.extension}")
+        val f = File("${fa.dataPath}/${p.lastName}_${p.firstName}.${fa.extension}")
         f.writeText(serializedPeer)
         CreateOrUpdateStatus.SUCCESS
     } catch (e: Exception) {
@@ -91,14 +97,14 @@ fun outputFor(days: Long): String {
 }
 
 fun createOrUpdatePeer(
-    createOrUpdate: (p: Peer, fileAdapter: FileAdapter) -> CreateOrUpdateStatus,
+    createOrUpdate: (p: Peer, fa: FileAdapter) -> CreateOrUpdateStatus,
     peer: Peer,
-    onSuccess: (fileAdapter: FileAdapter, display: (msg: String) -> Unit) -> Unit,
+    onSuccess: (fa: FileAdapter, display: (msg: String) -> Unit) -> Unit,
     onError: (msg: String) -> Unit,
-    fileAdapter: FileAdapter
+    fa: FileAdapter
 ) {
-    when (createOrUpdate(peer, fileAdapter)) {
-        CreateOrUpdateStatus.SUCCESS -> onSuccess(fileAdapter, onError)
+    when (createOrUpdate(peer, fa)) {
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(fa, onError)
         CreateOrUpdateStatus.ERROR -> onError("While creating or updating, something went wrong")
     }
 }
@@ -117,10 +123,16 @@ fun findDuplicates(peers: List<Peer>, firstName: String): FindResult {
     return when {
         peers.size > 1 -> FindResult(
             Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F),
-            DUPLICATE_PEER_BY_FIRST_NAME
+            findStatus = DUPLICATE_PEER_BY_FIRST_NAME
         )
-        peers.size == 1 -> FindResult(Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F), SUCCESS)
-        else -> FindResult(Peer(firstName, "unknown"), PEER_UNKNOWN)
+        peers.size == 1 -> FindResult(
+            Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F),
+            findStatus = SUCCESS
+        )
+        else -> FindResult(
+            Peer(firstName, "unknown"),
+            findStatus = PEER_UNKNOWN
+        )
     }
 }
 
