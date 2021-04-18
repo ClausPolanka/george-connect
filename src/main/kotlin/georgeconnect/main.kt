@@ -66,6 +66,22 @@ class UpdatePeerByFirstNameCmd(
     }
 }
 
+fun foo(findResult: FindResult, dataPath: String, display: (msg: String) -> Unit) {
+    when (findResult.findStatus) {
+        FindStatus.SUCCESS -> {
+            createOrUpdate(
+                ::createOrUpdateJsonFor,
+                dataPath,
+                Peer(findResult.peer.firstName, findResult.peer.lastName),
+                ::showInteractions,
+                display
+            )
+        }
+        FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, findResult.peer.firstName))
+        FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, findResult.peer.firstName))
+    }
+}
+
 class CreateOrUpdateWithCustomDateCmd(
     val dataPath: String,
     val firstName: String,

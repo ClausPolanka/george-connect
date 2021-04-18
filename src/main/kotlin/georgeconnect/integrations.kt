@@ -1,7 +1,6 @@
 package georgeconnect
 
 import com.beust.klaxon.Klaxon
-import georgeconnect.FindStatus.*
 import java.lang.String.format
 import java.time.LocalDate
 
@@ -31,5 +30,5 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 fun findPeerBy(firstName: String, path: String): FindResult {
     val peers = peersFrom(path)
     val duplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
-    return toFindResult(duplicates)
+    return findDuplicates(duplicates, firstName)
 }
