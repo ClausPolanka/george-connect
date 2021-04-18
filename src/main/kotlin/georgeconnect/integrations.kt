@@ -10,13 +10,13 @@ fun showInteractions(path: String) {
 }
 
 private fun sortedPeersFrom(path: String): List<Peer> {
-    val peers = peersFrom(path)
+    val peers = peersFrom(path, ::jsonsFrom, Klaxon()::parse)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 
-private fun peersFrom(path: String): MutableSet<Peer> {
-    val jsons = jsonsFrom(path)
-    return peersFrom(jsons, Klaxon()::parse)
+private fun peersFrom(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?): MutableSet<Peer> {
+    val fileData = loadFileData(path)
+    return peersFrom(fileData, deserializePeer)
 }
 
 private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
@@ -28,7 +28,7 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 }
 
 fun findPeerBy(firstName: String, path: String): FindResult {
-    val peers = peersFrom(path)
+    val peers = peersFrom(path, ::jsonsFrom, Klaxon()::parse)
     val duplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
     return findDuplicates(duplicates, firstName)
 }

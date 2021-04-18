@@ -15,8 +15,8 @@ fun jsonsFrom(path: String): List<String> {
         .toList()
 }
 
-fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Peer> {
-    return jsons.mapNotNull { jsonToPeer(it) }.toMutableSet()
+fun peersFrom(serializedPeers: List<String>, deserializePeer: (String) -> Peer?): MutableSet<Peer> {
+    return serializedPeers.mapNotNull { deserializePeer(it) }.toMutableSet()
 }
 
 fun createOrUpdateJsonFor(p: Peer, path: String): CreateOrUpdateStatus {
