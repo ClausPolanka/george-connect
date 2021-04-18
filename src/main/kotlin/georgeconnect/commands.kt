@@ -29,11 +29,11 @@ class UpdatePeerByFirstNameCmd(
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
                 createOrUpdatePeer(
-                    ::createOrUpdatePeerOnFileSystem,
-                    Peer(result.peer.firstName, result.peer.lastName),
-                    ::showInteractions,
-                    display,
-                    fileAdapter
+                    createOrUpdate = ::createOrUpdatePeerOnFileSystem,
+                    peer = Peer(result.peer.firstName, result.peer.lastName),
+                    onSuccess = ::showInteractions,
+                    onError = display,
+                    fileAdapter = fileAdapter
                 )
             }
             FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(
@@ -56,11 +56,11 @@ class CreateOrUpdateWithCustomDateCmd(
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdatePeer(
-            ::createOrUpdatePeerOnFileSystem,
-            Peer(firstName, lastName, date),
-            ::showInteractions,
-            display,
-            fileAdapter
+            createOrUpdate = ::createOrUpdatePeerOnFileSystem,
+            peer = Peer(firstName, lastName, date),
+            onSuccess = ::showInteractions,
+            onError = display,
+            fileAdapter = fileAdapter
         )
     }
 }
