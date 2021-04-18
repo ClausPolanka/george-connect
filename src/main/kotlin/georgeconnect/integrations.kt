@@ -4,13 +4,13 @@ import com.beust.klaxon.Klaxon
 import java.lang.String.format
 import java.time.LocalDate
 
-fun showInteractions(path: String) {
-    val peers = sortedPeersFrom(path)
+fun showInteractions(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?) {
+    val peers = sortedPeersFrom(path, loadFileData, deserializePeer)
     showLastInteractionsWith(peers, display = ::println)
 }
 
-private fun sortedPeersFrom(path: String): List<Peer> {
-    val peers = peersFrom(path, ::jsonsFrom, Klaxon()::parse)
+private fun sortedPeersFrom(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?): List<Peer> {
+    val peers = peersFrom(path, loadFileData, deserializePeer)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 

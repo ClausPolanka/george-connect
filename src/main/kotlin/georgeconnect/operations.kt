@@ -53,11 +53,12 @@ fun createOrUpdate(
     createOrUpdate: (p: Peer, path: String) -> CreateOrUpdateStatus,
     dataPath: String,
     peer: Peer,
-    onSuccess: (s: String) -> Unit,
-    onFileError: (msg: String) -> Unit
+    onSuccess: (s: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?) -> Unit,
+    onFileError: (msg: String) -> Unit,
+    loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?
 ) {
     when (createOrUpdate(peer, dataPath)) {
-        CreateOrUpdateStatus.SUCCESS -> onSuccess(dataPath)
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(dataPath, loadFileData, deserializePeer)
         CreateOrUpdateStatus.FILE_ERROR -> onFileError("While creating or updating, something went wrong")
     }
 }
