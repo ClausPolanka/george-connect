@@ -1,10 +1,63 @@
 package georgeconnect
 
+import com.beust.klaxon.Klaxon
 import georgeconnect.FindStatus.*
 import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+
+fun parse(args: Array<String>, argsToCommands: (args: Array<String>) -> GeorgeConnectCommands): GeorgeConnectCmd {
+    return when (argsToCommands(args)) {
+        WRONG_NR_OF_ARGS -> ShowUsageCmd()
+        SHOW_INTERACTIONS -> ShowInteractionsCmd(
+            FileAdapter(
+                dataPath = args[0],
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
+            ),
+            display = ::println
+        )
+        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
+            firstName = args[1],
+            FileAdapter(
+                dataPath = args[0],
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
+            ),
+            display = ::println
+        )
+        CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
+            firstName = args[1],
+            lastName = args[2],
+            FileAdapter(
+                dataPath = args[0],
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
+            ),
+            display = ::println
+        )
+        CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
+            firstName = args[1],
+            lastName = args[2],
+            date = args[3],
+            FileAdapter(
+                dataPath = args[0],
+                loadFileData = ::filesFrom,
+                deserializePeer = Klaxon()::parse,
+                serializePeer = Klaxon()::toJsonString,
+                extension = "json"
+            ),
+            display = ::println
+        )
+    }
+}
 
 fun filesFrom(path: String, extension: String): List<String> {
     return File(path).walk()
@@ -58,7 +111,7 @@ fun createOrUpdatePeer(
     }
 }
 
-fun toCommand(args: Array<String>): GeorgeConnectCommands {
+fun argsToCommands(args: Array<String>): GeorgeConnectCommands {
     return when (args.size) {
         1 -> SHOW_INTERACTIONS
         2 -> UPDATE_BY_FIRST_NAME
