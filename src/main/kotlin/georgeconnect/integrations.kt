@@ -29,6 +29,6 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 
 fun findPeerBy(firstName: String, path: String): FindResult {
     val peers = peersFrom(FileDeserializer(path, ::jsonsFrom, Klaxon()::parse))
-    val duplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
-    return findDuplicates(duplicates, firstName)
+    val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
+    return findDuplicates(potentialDuplicates, firstName)
 }

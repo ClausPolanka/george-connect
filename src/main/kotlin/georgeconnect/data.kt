@@ -50,3 +50,9 @@ enum class GeorgeConnectCommands {
     CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME,
     CREATE_OR_UPDATE_WITH_CUSTOM_DATE
 }
+
+data class FileDeserializer(
+    val dataPath: String,
+    val loadFileData: (path: String) -> List<String>,
+    val deserializePeer: (String) -> Peer?
+)

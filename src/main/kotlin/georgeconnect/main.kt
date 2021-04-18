@@ -60,12 +60,6 @@ class ShowUsageCmd : GeorgeConnectCmd {
     }
 }
 
-data class FileDeserializer(
-    val dataPath: String,
-    val loadFileData: (path: String) -> List<String>,
-    val deserializePeer: (String) -> Peer?
-)
-
 class ShowInteractionsCmd(private val fileDeserializer: FileDeserializer) : GeorgeConnectCmd {
     override fun execute() {
         showInteractions(fileDeserializer)
