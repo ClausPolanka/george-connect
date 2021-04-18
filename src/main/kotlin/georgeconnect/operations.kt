@@ -51,14 +51,13 @@ fun outputFor(days: Long): String {
 
 fun createOrUpdate(
     createOrUpdate: (p: Peer, path: String) -> CreateOrUpdateStatus,
-    dataPath: String,
     peer: Peer,
-    onSuccess: (s: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?) -> Unit,
+    onSuccess: (fileDeserializer: FileDeserializer) -> Unit,
     onFileError: (msg: String) -> Unit,
-    loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?
+    fileDeserializer: FileDeserializer
 ) {
-    when (createOrUpdate(peer, dataPath)) {
-        CreateOrUpdateStatus.SUCCESS -> onSuccess(dataPath, loadFileData, deserializePeer)
+    when (createOrUpdate(peer, fileDeserializer.dataPath)) {
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(fileDeserializer)
         CreateOrUpdateStatus.FILE_ERROR -> onFileError("While creating or updating, something went wrong")
     }
 }

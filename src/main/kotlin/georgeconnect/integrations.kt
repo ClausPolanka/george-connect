@@ -4,19 +4,19 @@ import com.beust.klaxon.Klaxon
 import java.lang.String.format
 import java.time.LocalDate
 
-fun showInteractions(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?) {
-    val peers = sortedPeersFrom(path, loadFileData, deserializePeer)
+fun showInteractions(fileDeserializer: FileDeserializer) {
+    val peers = sortedPeersFrom(fileDeserializer)
     showLastInteractionsWith(peers, display = ::println)
 }
 
-private fun sortedPeersFrom(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?): List<Peer> {
-    val peers = peersFrom(path, loadFileData, deserializePeer)
+private fun sortedPeersFrom(fileDeserializer: FileDeserializer): List<Peer> {
+    val peers = peersFrom(fileDeserializer)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
 
-private fun peersFrom(path: String, loadFileData: (path: String) -> List<String>, deserializePeer: (String) -> Peer?): MutableSet<Peer> {
-    val fileData = loadFileData(path)
-    return peersFrom(fileData, deserializePeer)
+private fun peersFrom(fileDeserializer: FileDeserializer): MutableSet<Peer> {
+    val fileData = fileDeserializer.loadFileData(fileDeserializer.dataPath)
+    return peersFrom(fileData, fileDeserializer.deserializePeer)
 }
 
 private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> Unit) {
@@ -28,7 +28,7 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 }
 
 fun findPeerBy(firstName: String, path: String): FindResult {
-    val peers = peersFrom(path, ::jsonsFrom, Klaxon()::parse)
+    val peers = peersFrom(FileDeserializer(path, ::jsonsFrom, Klaxon()::parse))
     val duplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
     return findDuplicates(duplicates, firstName)
 }

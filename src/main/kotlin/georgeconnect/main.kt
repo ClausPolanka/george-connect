@@ -13,31 +13,39 @@ fun parse(args: Array<String>): GeorgeConnectCmd {
     return when (toCommand(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
         SHOW_INTERACTIONS -> ShowInteractionsCmd(
-            dataPath = args[0],
-            loadFileData = ::jsonsFrom,
-            deserializePeer = Klaxon()::parse
+            FileDeserializer(
+                dataPath = args[0],
+                loadFileData = ::jsonsFrom,
+                deserializePeer = Klaxon()::parse
+            )
         )
         UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
-            dataPath = args[0],
             firstName = args[1],
             ::println,
-            loadFileData = ::jsonsFrom,
-            deserializePeer = Klaxon()::parse
+            FileDeserializer(
+                dataPath = args[0],
+                loadFileData = ::jsonsFrom,
+                deserializePeer = Klaxon()::parse
+            )
         )
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
-            dataPath = args[0],
             firstName = args[1],
             lastName = args[2],
-            loadFileData = ::jsonsFrom,
-            deserializePeer = Klaxon()::parse
+            FileDeserializer(
+                dataPath = args[0],
+                loadFileData = ::jsonsFrom,
+                deserializePeer = Klaxon()::parse
+            )
         )
         CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
-            dataPath = args[0],
             firstName = args[1],
             lastName = args[2],
             date = args[3],
-            loadFileData = ::jsonsFrom,
-            deserializePeer = Klaxon()::parse
+            FileDeserializer(
+                dataPath = args[0],
+                loadFileData = ::jsonsFrom,
+                deserializePeer = Klaxon()::parse
+            )
         )
     }
 }
@@ -52,35 +60,33 @@ class ShowUsageCmd : GeorgeConnectCmd {
     }
 }
 
-class ShowInteractionsCmd(
-    private val dataPath: String,
-    private val loadFileData: (path: String) -> List<String>,
-    private val deserializePeer: (String) -> Peer?
-) : GeorgeConnectCmd {
+data class FileDeserializer(
+    val dataPath: String,
+    val loadFileData: (path: String) -> List<String>,
+    val deserializePeer: (String) -> Peer?
+)
+
+class ShowInteractionsCmd(private val fileDeserializer: FileDeserializer) : GeorgeConnectCmd {
     override fun execute() {
-        showInteractions(dataPath, loadFileData, deserializePeer)
+        showInteractions(fileDeserializer)
     }
 }
 
 class UpdatePeerByFirstNameCmd(
-    private val dataPath: String,
     private val firstName: String,
     private val display: (msg: String) -> Unit,
-    private val loadFileData: (path: String) -> List<String>,
-    private val deserializePeer: (String) -> Peer?
+    private val fileDeserializer: FileDeserializer
 ) : GeorgeConnectCmd {
     override fun execute() {
-        val result = findPeerBy(firstName, dataPath)
+        val result = findPeerBy(firstName, fileDeserializer.dataPath)
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
                 createOrUpdate(
                     ::createOrUpdateJsonFor,
-                    dataPath,
                     Peer(result.peer.firstName, result.peer.lastName),
                     ::showInteractions,
                     display,
-                    loadFileData,
-                    deserializePeer
+                    fileDeserializer
                 )
             }
             FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
@@ -90,42 +96,34 @@ class UpdatePeerByFirstNameCmd(
 }
 
 class CreateOrUpdateWithCustomDateCmd(
-    private val dataPath: String,
     private val firstName: String,
     private val lastName: String,
     private val date: String,
-    private val loadFileData: (path: String) -> List<String>,
-    private val deserializePeer: (String) -> Peer?
+    private val fileDeserializer: FileDeserializer
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdate(
             ::createOrUpdateJsonFor,
-            dataPath,
             Peer(firstName, lastName, date),
             ::showInteractions,
             ::println,
-            loadFileData,
-            deserializePeer
+            fileDeserializer
         )
     }
 }
 
 class CreateOrUpdatePeerByFirstNameAndLastNameCmd(
-    private val dataPath: String,
     private val firstName: String,
     private val lastName: String,
-    private val loadFileData: (path: String) -> List<String>,
-    private val deserializePeer: (String) -> Peer?
+    private val fileDeserializer: FileDeserializer
 ) : GeorgeConnectCmd {
     override fun execute() {
         createOrUpdate(
             ::createOrUpdateJsonFor,
-            dataPath,
             Peer(firstName, lastName),
             ::showInteractions,
             ::println,
-            loadFileData,
-            deserializePeer
+            fileDeserializer
         )
     }
 }
