@@ -25,7 +25,7 @@ class UpdatePeerByFirstNameCmd(
     private val display: (msg: String) -> Unit
 ) : GeorgeConnectCmd {
     override fun execute() {
-        val result = findPeerBy(firstName, fileAdapter)
+        val result = findPeerBy(firstName, fileAdapter, display)
         when (result.findStatus) {
             FindStatus.SUCCESS -> {
                 createOrUpdatePeer(

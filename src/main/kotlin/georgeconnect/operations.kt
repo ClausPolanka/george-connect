@@ -48,8 +48,20 @@ fun filesFrom(path: String, extension: String): List<String> {
         .toList()
 }
 
-fun peersFrom(serializedPeers: List<String>, deserializePeer: (String) -> Peer?): MutableSet<Peer> {
-    return serializedPeers.mapNotNull { deserializePeer(it) }.toMutableSet()
+fun peersFrom(
+    serializedPeers: List<String>,
+    deserializePeer: (String) -> Peer?,
+    display: (msg: String) -> Unit
+): MutableSet<Peer> {
+    return serializedPeers.mapNotNull {
+        val deserialized = deserializePeer(it)
+        if (deserialized == null) {
+            display("Please check '$it'. Could not be deserialized")
+            deserialized
+        } else {
+            deserialized
+        }
+    }.toMutableSet()
 }
 
 fun createOrUpdatePeerOnFileSystem(p: Peer, fileAdapter: FileAdapter): CreateOrUpdateStatus {

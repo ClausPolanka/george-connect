@@ -53,8 +53,12 @@ enum class GeorgeConnectCommands {
 
 data class FileAdapter(
     val dataPath: String,
-    val loadFileData: (path: String, extension: String) -> List<String>,
+    private val loadFileData: (path: String, extension: String) -> List<String>,
     val deserializePeer: (String) -> Peer?,
     val serializePeer: (Peer) -> String,
-    val extension: String
-)
+    val extension: String) {
+
+    fun loadFileData(): List<String> {
+        return loadFileData(dataPath, extension)
+    }
+}
