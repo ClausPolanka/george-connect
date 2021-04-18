@@ -10,31 +10,25 @@ import java.time.temporal.ChronoUnit
 fun parse(
     args: Array<String>,
     argsToCommands: (args: Array<String>) -> GeorgeConnectCommands,
-    createFileAdapter: (args: Array<String>) -> FileAdapter
+    createFileAdapter: (args: Array<String>) -> FileAdapter,
+    display: (msg: String) -> Unit
 ): GeorgeConnectCmd {
     return when (argsToCommands(args)) {
         WRONG_NR_OF_ARGS -> ShowUsageCmd()
-        SHOW_INTERACTIONS -> ShowInteractionsCmd(
-            createFileAdapter(args),
-            display = ::println
-        )
-        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
-            firstName = args[1],
-            createFileAdapter(args),
-            display = ::println
-        )
+        SHOW_INTERACTIONS -> ShowInteractionsCmd(createFileAdapter(args), display)
+        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(firstName = args[1], createFileAdapter(args), display)
         CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
             firstName = args[1],
             lastName = args[2],
             createFileAdapter(args),
-            display = ::println
+            display
         )
         CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
             firstName = args[1],
             lastName = args[2],
             date = args[3],
             createFileAdapter(args),
-            display = ::println
+            display
         )
     }
 }
