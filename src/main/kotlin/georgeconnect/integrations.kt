@@ -4,11 +4,11 @@ import java.lang.String.format
 import java.time.LocalDate
 
 fun showInteractions(fileAdapter: fileAdapter, display: (s: String) -> Unit) {
-    val peers = sortedPeersFrom(fileAdapter)
+    val peers = sortedPeersFromFileSystem(fileAdapter)
     showLastInteractionsWith(peers, display)
 }
 
-private fun sortedPeersFrom(fileAdapter: fileAdapter): List<Peer> {
+private fun sortedPeersFromFileSystem(fileAdapter: fileAdapter): List<Peer> {
     val peers = loadPeersFromFileSystem(fileAdapter)
     return peers.sortedBy { it.lastInteractionF2FInDays(LocalDate::now) }
 }
