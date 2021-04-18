@@ -4,7 +4,6 @@ import georgeconnect.FindStatus.*
 import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
 import java.time.LocalDate
-import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 fun filesFrom(path: String, extension: String): List<String> {
@@ -29,16 +28,14 @@ fun createOrUpdatePeerOnFileSystem(p: Peer, fileAdapter: FileAdapter): CreateOrU
     }
 }
 
-fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long {
-    val localDate = try {
-        LocalDate.parse(this.lastInteractionF2F)
-    } catch (e: DateTimeParseException) {
-        throw PeerLastInteractionDateHasWrongFormat(this)
+fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long? {
+    return try {
+        val localDate = LocalDate.parse(this.lastInteractionF2F)
+        ChronoUnit.DAYS.between(localDate, now())
+    } catch (e: Exception) {
+        null
     }
-    return ChronoUnit.DAYS.between(localDate, now())
 }
-
-class PeerLastInteractionDateHasWrongFormat(val peer: Peer) : RuntimeException()
 
 fun outputFor(days: Long): String {
     return when {
@@ -73,7 +70,10 @@ fun toCommand(args: Array<String>): GeorgeConnectCommands {
 
 fun findDuplicates(peers: List<Peer>, firstName: String): FindResult {
     return when {
-        peers.size > 1 -> FindResult(Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F), DUPLICATE_PEER_BY_FIRST_NAME)
+        peers.size > 1 -> FindResult(
+            Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F),
+            DUPLICATE_PEER_BY_FIRST_NAME
+        )
         peers.size == 1 -> FindResult(Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F), SUCCESS)
         else -> FindResult(Peer(firstName, "unknown"), PEER_UNKNOWN)
     }
