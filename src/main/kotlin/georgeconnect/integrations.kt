@@ -1,6 +1,10 @@
 package georgeconnect
 
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
 
 fun showInteractions(fa: FileAdapter, display: (s: String) -> Unit) {
     val peers = sortedPeersFromFileSystem(fa, display)
@@ -28,6 +32,6 @@ fun findPeerBy(firstName: String, fa: FileAdapter, display: (s: String) -> Unit)
 }
 
 fun createOrUpdateAndShowPeers(peer: Peer, display: (msg: String) -> Unit, fa: FileAdapter) {
-    createOrUpdatePeer(::createOrUpdatePeerOnFileSystem, peer, onSuccess = ::showInteractions, onError = display, fa)
+    validateInput(peer, onValid = ::createOrUpdatePeer, onInvalid = display, fa)
 }
 

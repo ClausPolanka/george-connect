@@ -5,6 +5,9 @@ import georgeconnect.FindStatus.*
 import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 fun parse(
@@ -76,6 +79,27 @@ fun createOrUpdatePeerOnFileSystem(p: Peer, fa: FileAdapter): CreateOrUpdateStat
         CreateOrUpdateStatus.SUCCESS
     } catch (e: Exception) {
         CreateOrUpdateStatus.ERROR
+    }
+}
+
+fun validateInput(
+    p: Peer,
+    onValid: (
+        createOrUpdate: (p: Peer, fa: FileAdapter) -> CreateOrUpdateStatus,
+        peer: Peer,
+        onSuccess: (fa: FileAdapter, display: (msg: String) -> Unit) -> Unit,
+        onError: (msg: String) -> Unit,
+        fa: FileAdapter
+    ) -> Unit,
+    onInvalid: (msg: String) -> Unit,
+    fa: FileAdapter
+) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    try {
+        LocalDate.parse(p.lastInteractionF2F, formatter)
+        onValid(::createOrUpdatePeerOnFileSystem, p, ::showInteractions, onInvalid, fa)
+    } catch (e: Exception) {
+        onInvalid("Please check '$p' last interaction date. Expected date format: yyyy-MM-dd")
     }
 }
 
