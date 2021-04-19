@@ -1,9 +1,6 @@
 package georgeconnect
 
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 
 fun showInteractions(fa: FileAdapter, display: (s: String) -> Unit) {
