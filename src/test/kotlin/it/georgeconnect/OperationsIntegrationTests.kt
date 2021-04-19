@@ -3,8 +3,8 @@ package it.georgeconnect
 import com.beust.klaxon.Klaxon
 import georgeconnect.FileAdapter
 import georgeconnect.Peer
-import georgeconnect.filesFrom
 import georgeconnect.createOrUpdatePeerOnFileSystem
+import georgeconnect.filesFrom
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
