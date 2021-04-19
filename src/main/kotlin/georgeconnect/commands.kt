@@ -35,8 +35,8 @@ class UpdatePeerByFirstNameCmd(
                 display,
                 fileAdapter
             )
-            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, firstName))
-            FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, firstName))
+            FindStatus.DUPLICATE_PEER_BY_FIRST_NAME -> display(format(multipleEntriesFormat, result.peer.firstName))
+            FindStatus.PEER_UNKNOWN -> display(format(peerNotFoundFormat, result.peer.firstName))
         }
     }
 }
