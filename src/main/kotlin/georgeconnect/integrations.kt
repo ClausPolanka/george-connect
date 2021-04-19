@@ -24,8 +24,7 @@ private fun showLastInteractionsWith(peers: List<Peer>, display: (s: String) -> 
 
 fun findPeerBy(firstName: String, fa: FileAdapter, display: (s: String) -> Unit): FindResult {
     val peers = loadPeersFromFileSystem(fa, display)
-    val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
-    return findDuplicates(potentialDuplicates, firstName)
+    return findDuplicates(peers, firstName)
 }
 
 fun createOrUpdateAndShowPeers(peer: Peer, display: (msg: String) -> Unit, fa: FileAdapter) {

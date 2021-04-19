@@ -59,12 +59,12 @@ fun peersFrom(
     display: (msg: String) -> Unit
 ): MutableSet<Peer> {
     return serializedPeers.mapNotNull {
-        val deserialized = deserializePeer(it)
-        if (deserialized == null) {
-            display("Please check '$it'. Could not be deserialized")
-            deserialized
-        } else {
-            deserialized
+        when (val deserialized = deserializePeer(it)) {
+            null -> {
+                display("Please check '$it'. Could not be deserialized")
+                deserialized
+            }
+            else -> deserialized
         }
     }.toMutableSet()
 }
@@ -141,14 +141,15 @@ fun argsToCommands(args: Array<String>): GeorgeConnectCommands {
     }
 }
 
-fun findDuplicates(peers: List<Peer>, firstName: String): FindResult {
+fun findDuplicates(peers: MutableSet<Peer>, firstName: String): FindResult {
+    val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
     return when {
-        peers.size > 1 -> FindResult(
-            Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F),
+        potentialDuplicates.size > 1 -> FindResult(
+            Peer(firstName, "duplicate"),
             findStatus = DUPLICATE_PEER_BY_FIRST_NAME
         )
-        peers.size == 1 -> FindResult(
-            Peer(firstName, peers[0].lastName, peers[0].lastInteractionF2F),
+        potentialDuplicates.size == 1 -> FindResult(
+            Peer(firstName, potentialDuplicates[0].lastName, potentialDuplicates[0].lastInteractionF2F),
             findStatus = SUCCESS
         )
         else -> FindResult(
