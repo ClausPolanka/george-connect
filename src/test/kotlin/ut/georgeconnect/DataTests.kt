@@ -3,8 +3,7 @@ package ut.georgeconnect
 import georgeconnect.Peer
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class DataTests {
 
@@ -45,7 +44,6 @@ class DataTests {
     fun `peer is not equal to null type`() {
         val p1 = Peer("ignore", "ignore")
         val p2 = null
-        @Suppress("TYPE_INFERENCE_ONLY_INPUT_TYPES_WARNING")
-        assertNotEquals(p1, p2, "p1 != p2")
+        assertTrue(p1 != p2, "p1 != p2")
     }
 }
