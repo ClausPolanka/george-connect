@@ -1,104 +1,170 @@
 package georgeconnect
 
 import com.beust.klaxon.Klaxon
+import georgeconnect.FindStatus.*
+import georgeconnect.GeorgeConnectCommands.*
 import java.io.File
-import java.lang.String.format
 import java.time.LocalDate
-import java.time.format.DateTimeParseException
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-
-fun errorHandled(display: (msg: String) -> Unit, georgeConnect: () -> Unit) {
-    try {
-        georgeConnect()
-    } catch (e: PeerNotFoundException) {
-        display(format(peerNotFoundFormat, e.firstName))
-    } catch (e: MultipleEntriesFoundException) {
-        display(format(multipleEntriesFormat, e.firstName))
-    } catch (e: WrongNumberOfArgsException) {
-        display(usage)
-    } catch (e: PeerLastInteractionDateHasWrongFormat) {
-        display(format(dateHasWrongFormat, e.peer.firstName, e.peer.lastName, e.peer.lastInteractionF2F))
-    }
-}
-
-fun inCase(argsOnlyContainPath: Boolean, onShowInteractions: () -> Unit, onUpdatePeer: () -> Unit) {
-    when (argsOnlyContainPath) {
-        true -> onShowInteractions()
-        else -> onUpdatePeer()
-    }
-}
 
 fun parse(
     args: Array<String>,
-    onFourArgs: (args: Array<String>) -> Pair<String, Peer>,
-    onThreeArgs: (args: Array<String>) -> Pair<String, Peer>,
-    onTwoArgs: (args: Array<String>, findBy: (firstName: String, path: String) -> Peer?) -> Pair<String, Peer>,
-    findBy: (firstName: String, path: String) -> Peer?
-): Pair<String, Peer> {
-    return when (args.size) {
-        4 -> onFourArgs(args)
-        3 -> onThreeArgs(args)
-        2 -> onTwoArgs(args, findBy)
-        else -> throw WrongNumberOfArgsException()
-    }
-}
-
-fun parseTwoArgs(args: Array<String>, findBy: (firstName: String, path: String) -> Peer?): Pair<String, Peer> {
-    val path = args[0]
-    val firstName = args[1]
-    return when (val p = findBy(firstName, path)) {
-        null -> throw PeerNotFoundException(firstName)
-        else -> Pair(
-            path,
-            Peer(p.firstName, p.lastName)
+    argsToCommands: (args: Array<String>) -> GeorgeConnectCommands,
+    createFileAdapter: (args: Array<String>) -> FileAdapter,
+    display: (msg: String) -> Unit
+): GeorgeConnectCmd {
+    return when (argsToCommands(args)) {
+        WRONG_NR_OF_ARGS -> ShowUsageCmd()
+        SHOW_INTERACTIONS -> ShowInteractionsCmd(createFileAdapter(args), display)
+        UPDATE_BY_FIRST_NAME -> UpdatePeerByFirstNameCmd(
+            firstName = args[1],
+            createFileAdapter(args),
+            display,
+            ::createOrUpdateAndShowPeers
+        )
+        CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME -> CreateOrUpdatePeerByFirstNameAndLastNameCmd(
+            Peer(firstName = args[1], lastName = args[2]),
+            createFileAdapter(args),
+            display,
+            ::createOrUpdateAndShowPeers
+        )
+        CREATE_OR_UPDATE_WITH_CUSTOM_DATE -> CreateOrUpdateWithCustomDateCmd(
+            Peer(firstName = args[1], lastName = args[2], lastInteractionF2F = args[3]),
+            createFileAdapter(args),
+            display,
+            ::createOrUpdateAndShowPeers
         )
     }
 }
 
-class PeerNotFoundException(val firstName: String) : RuntimeException()
+fun createJsonKlaxonFileAdapter(args: Array<String>) = FileAdapter(
+    dataPath = args[0],
+    loadFileData = ::filesFrom,
+    deserializePeer = Klaxon()::parse,
+    serializePeer = Klaxon()::toJsonString,
+    extension = "json"
+)
 
-class WrongNumberOfArgsException : RuntimeException()
-
-fun jsonsFrom(path: String): List<String> {
+fun filesFrom(path: String, extension: String): List<String> {
     return File(path).walk()
-        .filter { it.extension == "json" }
+        .filter { it.extension == extension }
         .map { it.readText(Charsets.UTF_8) }
         .toList()
 }
 
-fun peersFrom(jsons: List<String>, jsonToPeer: (String) -> Peer?): MutableSet<Peer> {
-    return jsons.mapNotNull { jsonToPeer(it) }.toMutableSet()
+fun peersFrom(
+    serializedPeers: List<String>,
+    deserializePeer: (String) -> Peer?,
+    display: (msg: String) -> Unit
+): MutableSet<Peer> {
+    return serializedPeers.mapNotNull {
+        when (val deserialized = deserializePeer(it)) {
+            null -> {
+                display("Please check '$it'. Could not be deserialized")
+                deserialized
+            }
+            else -> deserialized
+        }
+    }.toMutableSet()
 }
 
-fun MutableSet<Peer>.throwIfDuplicatesExistFor(firstName: String) {
-    val result = this.filter { it.firstName == firstName }
-    if (result.size > 1) {
-        throw MultipleEntriesFoundException(firstName)
+fun createOrUpdatePeerOnFileSystem(p: Peer, fa: FileAdapter): CreateOrUpdateStatus {
+    val serializedPeer = fa.serializePeer(p)
+    return try {
+        val f = File("${fa.dataPath}/${p.lastName}_${p.firstName}.${fa.extension}")
+        f.writeText(serializedPeer)
+        CreateOrUpdateStatus.SUCCESS
+    } catch (e: Exception) {
+        CreateOrUpdateStatus.ERROR
     }
 }
 
-class MultipleEntriesFoundException(val firstName: String) : RuntimeException()
-
-fun updateJsonFor(p: Peer, path: String) {
-    val json = Klaxon().toJsonString(p)
-    File("$path/${p.lastName}_${p.firstName}.json").writeText(json)
-}
-
-fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long {
-    val localDate = try {
-        LocalDate.parse(this.lastInteractionF2F)
-    } catch (e: DateTimeParseException) {
-        throw PeerLastInteractionDateHasWrongFormat(this)
+fun validateInput(
+    p: Peer,
+    onValid: (
+        createOrUpdate: (p: Peer, fa: FileAdapter) -> CreateOrUpdateStatus,
+        peer: Peer,
+        onSuccess: (fa: FileAdapter, display: (msg: String) -> Unit) -> Unit,
+        onError: (msg: String) -> Unit,
+        fa: FileAdapter
+    ) -> Unit,
+    onInvalid: (msg: String) -> Unit,
+    fa: FileAdapter
+) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    try {
+        LocalDate.parse(p.lastInteractionF2F, formatter)
+        onValid(::createOrUpdatePeerOnFileSystem, p, ::showInteractions, onInvalid, fa)
+    } catch (e: Exception) {
+        onInvalid("Please check '$p' last interaction date. Expected date format: yyyy-MM-dd")
     }
-    return ChronoUnit.DAYS.between(localDate, now())
 }
 
-class PeerLastInteractionDateHasWrongFormat(val peer: Peer) : RuntimeException()
+fun Peer.lastInteractionF2FInDays(now: () -> LocalDate): Long? {
+    return try {
+        val localDate = LocalDate.parse(this.lastInteractionF2F)
+        ChronoUnit.DAYS.between(localDate, now())
+    } catch (e: Exception) {
+        null
+    }
+}
 
 fun outputFor(days: Long): String {
     return when {
         days == 0L -> "today"
         days > 1 -> "$days days ago"
         else -> "$days day ago"
+    }
+}
+
+fun createOrUpdatePeer(
+    createOrUpdate: (p: Peer, fa: FileAdapter) -> CreateOrUpdateStatus,
+    peer: Peer,
+    onSuccess: (fa: FileAdapter, display: (msg: String) -> Unit) -> Unit,
+    onError: (msg: String) -> Unit,
+    fa: FileAdapter
+) {
+    when (createOrUpdate(peer, fa)) {
+        CreateOrUpdateStatus.SUCCESS -> onSuccess(fa, onError)
+        CreateOrUpdateStatus.ERROR -> onError("While creating or updating, something went wrong")
+    }
+}
+
+fun argsToCommands(args: Array<String>): GeorgeConnectCommands {
+    return when (args.size) {
+        1 -> SHOW_INTERACTIONS
+        2 -> UPDATE_BY_FIRST_NAME
+        3 -> CREATE_OR_UPDATE_BY_FIRST_NAME_AND_LAST_NAME
+        4 -> CREATE_OR_UPDATE_WITH_CUSTOM_DATE
+        else -> WRONG_NR_OF_ARGS
+    }
+}
+
+fun findDuplicates(peers: MutableSet<Peer>, firstName: String): FindResult {
+    val potentialDuplicates = peers.filter { it.firstName.equals(firstName, ignoreCase = true) }
+    return when {
+        potentialDuplicates.size > 1 -> FindResult(
+            Peer(firstName, "duplicate"),
+            findStatus = DUPLICATE_PEER_BY_FIRST_NAME
+        )
+        potentialDuplicates.size == 1 -> FindResult(
+            Peer(firstName, potentialDuplicates[0].lastName, potentialDuplicates[0].lastInteractionF2F),
+            findStatus = SUCCESS
+        )
+        else -> FindResult(
+            Peer(firstName, "unknown"),
+            findStatus = PEER_UNKNOWN
+        )
+    }
+}
+
+fun showLastF2FInteraction(peer: Peer, outputForDays: (days: Long) -> String, display: (s: String) -> Unit) {
+    when (val days = peer.lastInteractionF2FInDays(LocalDate::now)) {
+        null -> display("Please check: '$peer' last interaction date")
+        else -> {
+            val output = outputForDays(days)
+            display(java.lang.String.format(lastF2FInteractionFormat, peer.firstName, peer.lastName, output))
+        }
     }
 }

@@ -1,8 +1,10 @@
 package it.georgeconnect
 
+import com.beust.klaxon.Klaxon
+import georgeconnect.FileAdapter
 import georgeconnect.Peer
-import georgeconnect.jsonsFrom
-import georgeconnect.updateJsonFor
+import georgeconnect.filesFrom
+import georgeconnect.createOrUpdatePeerOnFileSystem
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
@@ -20,7 +22,7 @@ class OperationsIntegrationTests {
         Files.write(jsonFile1, json1.toByteArray(Charsets.UTF_8))
         Files.write(jsonFile2, json2.toByteArray(Charsets.UTF_8))
 
-        val jsons = jsonsFrom(path = tempDir.toString())
+        val jsons = filesFrom(path = tempDir.toString(), extension = "json")
 
         assertEquals(expected = listOf(json1, json2), actual = jsons, message = "jsons")
     }
@@ -31,9 +33,15 @@ class OperationsIntegrationTests {
         val json = """{"firstName" : "firstname", "lastInteractionF2F" : "2021-03-03", "lastName" : "lastname"}"""
         Files.write(jsonFile, json.toByteArray(Charsets.UTF_8))
 
-        updateJsonFor(
+        createOrUpdatePeerOnFileSystem(
             p = Peer("firstname", "lastname", lastInteractionF2F = "2021-03-10"),
-            path = tempDir.toString()
+            fa = FileAdapter(
+                dataPath = tempDir.toString(),
+                loadFileData = { _, _ -> ignore() },
+                serializePeer = Klaxon()::toJsonString,
+                deserializePeer = { ignore() },
+                extension = "json"
+            )
         )
 
         val actual = Files.readAllLines(jsonFile, Charsets.UTF_8)[0]
@@ -43,4 +51,6 @@ class OperationsIntegrationTests {
             message = "peer json"
         )
     }
+
+    private fun ignore(): Nothing = throw NotImplementedError()
 }
