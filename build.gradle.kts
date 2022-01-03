@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.beust:klaxon:5.4")
+    implementation("com.beust:klaxon:5.5")
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.1")
